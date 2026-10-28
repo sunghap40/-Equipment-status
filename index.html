@@ -4,6 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>의왕 장비현황</title>
+    
+    <!-- 🔒 외부 접근 차단 및 관리자 인증 스크립트 시작 -->
+    <script>
+        // 관리자 시크릿 키 설정 (점검수첩 버튼 링크의 auth 파라미터와 일치해야 함)
+        const SECRET_KEY = "uiwang1234!";
+        
+        // 현재 URL의 파라미터 확인
+        const urlParams = new URLSearchParams(window.location.search);
+        const authKey = urlParams.get('auth');
+
+        // 이전 페이지(Referrer) 출처 확인
+        // [중요] 아래 문자열을 실제 점검수첩이 배포된 Vercel 도메인으로 변경하세요.
+        const referrer = document.referrer;
+        const isFromValidSource = referrer.includes("현재점검수첩도메인.vercel.app") || referrer.includes("localhost") || referrer.includes("127.0.0.1");
+
+        // 인증 키가 일치하지 않거나 출처가 비정상인 경우 차단
+        if (authKey !== SECRET_KEY) {
+            alert("접근 권한이 없습니다. 점검수첩 관리자 메뉴를 통해 접속해주세요.");
+            window.location.replace("about:blank"); // 빈 페이지로 강제 이동
+        } else {
+            // 인증 통과 시 주소창에서 비밀키를 숨겨서 외부 유출(복사/붙여넣기) 방지
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    </script>
+    <!-- 🔒 외부 접근 차단 스크립트 끝 -->
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
