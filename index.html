@@ -3,506 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>데이터센터 고압반 설비이력카드 인덱스</title>
+    <title>의왕 장비현황</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        body { font-family: 'Pretendard', sans-serif; background-color: #f8fafc; }
-        .card-hover { transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
-        .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
-        .spec-table th { background-color: #f1f5f9; color: #475569; font-weight: 600; text-align: left; padding: 0.5rem 0.75rem; border: 1px solid #e2e8f0; font-size: 0.75rem; }
-        .spec-table td { padding: 0.5rem 0.75rem; border: 1px solid #e2e8f0; font-size: 0.8125rem; color: #334155; }
+        body { font-family: 'Pretendard', sans-serif; background-color: #f3f4f6; }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .info-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .info-table th { background-color: #f8fafc; color: #64748b; font-weight: 600; padding: 10px 14px; border-bottom: 1px solid #e2e8f0; font-size: 0.8125rem; width: 35%; }
+        .info-table td { padding: 10px 14px; border-bottom: 1px solid #e2e8f0; font-size: 0.875rem; color: #334155; }
+        .info-table tr:last-child th, .info-table tr:last-child td { border-bottom: none; }
+        
+        .list-card { transition: all 0.2s ease-in-out; cursor: pointer; border: 1px solid #e2e8f0; }
+        .list-card:hover { border-color: #94a3b8; transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
     </style>
 </head>
-<body class="text-slate-800">
+<body class="text-slate-800 h-screen flex overflow-hidden">
     
-    <nav class="bg-blue-800 text-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-bolt text-xl text-yellow-400"></i>
-                    <span class="font-bold text-xl tracking-tight">의왕센터 전기실 고압반 점검 수첩</span>
-                </div>
-            </div>
+    <!-- Sidebar -->
+    <aside class="w-64 bg-[#0f172a] text-white flex flex-col flex-shrink-0 transition-all duration-300 z-20 hidden md:flex">
+        <div class="h-16 flex items-center px-6 border-b border-slate-800">
+            <span class="font-bold text-lg tracking-wide"><i class="fa-solid fa-server mr-2 text-blue-400"></i>의왕 장비현황</span>
         </div>
-    </nav>
+        <div class="p-4 flex-1 overflow-y-auto">
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 px-2">설비 카테고리</div>
+            <nav class="space-y-1" id="categoryNav">
+                <a href="#" class="cat-link flex items-center px-3 py-2.5 bg-blue-600/10 text-blue-400 rounded-lg group transition-colors" data-cat="ALL">
+                    <i class="fa-solid fa-border-all w-5 text-center mr-2"></i><span class="font-medium text-sm">전체 설비</span>
+                </a>
+                <a href="#" class="cat-link flex items-center px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200 rounded-lg group transition-colors" data-cat="HV">
+                    <i class="fa-solid fa-bolt w-5 text-center mr-2"></i><span class="font-medium text-sm">고압반 (HV)</span>
+                </a>
+                <a href="#" class="cat-link flex items-center px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200 rounded-lg group transition-colors" data-cat="TR">
+                    <i class="fa-solid fa-bolt-lightning w-5 text-center mr-2"></i><span class="font-medium text-sm">변압기 (TR)</span>
+                </a>
+                <a href="#" class="cat-link flex items-center px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200 rounded-lg group transition-colors" data-cat="LV">
+                    <i class="fa-solid fa-plug w-5 text-center mr-2"></i><span class="font-medium text-sm">저압반 (LV)</span>
+                </a>
+                <a href="#" class="cat-link flex items-center px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200 rounded-lg group transition-colors" data-cat="UPS">
+                    <i class="fa-solid fa-car-battery w-5 text-center mr-2"></i><span class="font-medium text-sm">UPS 및 배터리</span>
+                </a>
+                <a href="#" class="cat-link flex items-center px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200 rounded-lg group transition-colors" data-cat="GEN">
+                    <i class="fa-solid fa-power-off w-5 text-center mr-2"></i><span class="font-medium text-sm">비상발전기 (GEN)</span>
+                </a>
+                <a href="#" class="cat-link flex items-center px-3 py-2.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200 rounded-lg group transition-colors" data-cat="ETC">
+                    <i class="fa-solid fa-ellipsis w-5 text-center mr-2"></i><span class="font-medium text-sm">기타</span>
+                </a>
+            </nav>
+        </div>
+    </aside>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-            <div>
-                <h1 class="text-2xl font-extrabold text-slate-900">설비이력카드 인덱스</h1>
-                <p class="text-slate-500 mt-1">총 15면 고압반 상세 제원(VCB, CT, HIMAP, SA 등) 통합조회</p>
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col h-full min-w-0 bg-gray-50 relative">
+        <!-- Top Header -->
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 lg:px-8 shrink-0">
+            <div class="flex items-center">
+                <button class="md:hidden mr-4 text-slate-500 hover:text-slate-700">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <h2 id="currentCategoryTitle" class="text-lg font-bold text-slate-800">전체 설비</h2>
+                <span class="mx-3 text-gray-300">|</span>
+                <span id="resultCount" class="text-sm text-slate-500">총 0건 조회됨</span>
             </div>
-            <div class="w-full md:w-1/3">
+            <div class="w-64">
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fa-solid fa-search text-slate-400"></i>
+                        <i class="fa-solid fa-search text-slate-400 text-sm"></i>
                     </div>
-                    <input type="text" id="searchInput" class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg leading-5 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="설비명, 용도 검색 (예: UPS)">
+                    <input type="text" id="searchInput" class="block w-full pl-9 pr-3 py-1.5 border border-slate-300 rounded-md leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors" placeholder="설비명, 용도 검색...">
                 </div>
             </div>
+        </header>
+
+        <!-- List Area -->
+        <main class="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4" id="panelGrid">
+                <!-- Cards injected via JS -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Slide-over Panel -->
+    <div id="slideOverBackdrop" class="fixed inset-0 bg-slate-900/40 z-40 opacity-0 pointer-events-none transition-opacity duration-300 backdrop-blur-sm" onclick="closePanel()"></div>
+    
+    <div id="slideOverPanel" class="fixed inset-y-0 right-0 z-50 w-full max-w-xl bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <!-- Panel Header -->
+        <div class="h-16 flex items-center justify-between px-6 border-b border-gray-100 bg-white shrink-0">
+            <div class="flex items-center gap-3">
+                <span id="p_id" class="px-2 py-1 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-100 rounded"></span>
+                <h3 id="p_title" class="text-lg font-bold text-slate-800"></h3>
+            </div>
+            <button onclick="closePanel()" class="text-slate-400 hover:text-slate-600 transition-colors p-2 rounded-full hover:bg-slate-100">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
         </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="panelGrid">
-
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm card-hover overflow-hidden panel-card" 
-                 data-name="HV/INT-A/B" data-purpose="3F 전원계통 투입/차단" onclick="openModal('2FHV01')">
-                <div class="border-b border-slate-100 bg-slate-50 px-5 py-4 flex justify-between items-center">
-                    <div>
-                        <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md">2FHV01</span>
-                        <h3 class="text-lg font-bold text-slate-800 mt-1">HV/INT-A/B</h3>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                        <i class="fa-solid fa-bolt text-amber-500"></i>
-                    </div>
+        
+        <!-- Panel Body -->
+        <div class="flex-1 overflow-y-auto bg-slate-50 p-6 space-y-6">
+            <section class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50/50 px-4 py-3 border-b border-slate-100 flex items-center">
+                    <i class="fa-solid fa-circle-info text-blue-500 mr-2"></i>
+                    <h4 class="font-bold text-slate-700 text-sm">설비 기본 정보</h4>
                 </div>
-                <div class="px-5 py-4">
-                    <p class="text-sm font-medium text-slate-700 mb-3 h-10 line-clamp-2">3F 전원계통 투입/차단</p>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-map-pin w-4 text-slate-400"></i> <span>전기실 2F</span></div>
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-microchip w-4 text-slate-400"></i> <span class="truncate text-xs">S/N: V408-02223</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm card-hover overflow-hidden panel-card" 
-                 data-name="HV/PT" data-purpose="영상전압 검출용 계기류 전원공급" onclick="openModal('2FHV02')">
-                <div class="border-b border-slate-100 bg-slate-50 px-5 py-4 flex justify-between items-center">
-                    <div>
-                        <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md">2FHV02</span>
-                        <h3 class="text-lg font-bold text-slate-800 mt-1">HV/PT</h3>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                        <i class="fa-solid fa-bolt text-amber-500"></i>
-                    </div>
-                </div>
-                <div class="px-5 py-4">
-                    <p class="text-sm font-medium text-slate-700 mb-3 h-10 line-clamp-2">영상전압 검출용 계기류 전원공급</p>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-map-pin w-4 text-slate-400"></i> <span>전기실 2F</span></div>
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-microchip w-4 text-slate-400"></i> <span class="truncate text-xs">S/N: V408-02223</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm card-hover overflow-hidden panel-card" 
-                 data-name="HV/IN-3F" data-purpose="3F 전원계통 투입/차단" onclick="openModal('2FHV03')">
-                <div class="border-b border-slate-100 bg-slate-50 px-5 py-4 flex justify-between items-center">
-                    <div>
-                        <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md">2FHV03</span>
-                        <h3 class="text-lg font-bold text-slate-800 mt-1">HV/IN-3F</h3>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                        <i class="fa-solid fa-bolt text-amber-500"></i>
-                    </div>
-                </div>
-                <div class="px-5 py-4">
-                    <p class="text-sm font-medium text-slate-700 mb-3 h-10 line-clamp-2">3F 전원계통 투입/차단</p>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-map-pin w-4 text-slate-400"></i> <span>전기실 2F</span></div>
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-microchip w-4 text-slate-400"></i> <span class="truncate text-xs">S/N: V408-02225</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm card-hover overflow-hidden panel-card" 
-                 data-name="HV/1" data-purpose="TR/1 1차측 전원투입/차단 (UPS 3층 1호기)" onclick="openModal('2FHV04')">
-                <div class="border-b border-slate-100 bg-slate-50 px-5 py-4 flex justify-between items-center">
-                    <div>
-                        <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md">2FHV04</span>
-                        <h3 class="text-lg font-bold text-slate-800 mt-1">HV/1</h3>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                        <i class="fa-solid fa-server text-blue-500"></i>
-                    </div>
-                </div>
-                <div class="px-5 py-4">
-                    <p class="text-sm font-medium text-slate-700 mb-3 h-10 line-clamp-2">TR/1 1차측 전원투입/차단 (UPS 3층 1호기)</p>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-map-pin w-4 text-slate-400"></i> <span>전기실 2F</span></div>
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-microchip w-4 text-slate-400"></i> <span class="truncate text-xs">S/N: V408-02217</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm card-hover overflow-hidden panel-card" 
-                 data-name="HV/2" data-purpose="TR/2 1차측 전원투입/차단 (UPS 3층 2호기)" onclick="openModal('2FHV05')">
-                <div class="border-b border-slate-100 bg-slate-50 px-5 py-4 flex justify-between items-center">
-                    <div>
-                        <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md">2FHV05</span>
-                        <h3 class="text-lg font-bold text-slate-800 mt-1">HV/2</h3>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                        <i class="fa-solid fa-server text-blue-500"></i>
-                    </div>
-                </div>
-                <div class="px-5 py-4">
-                    <p class="text-sm font-medium text-slate-700 mb-3 h-10 line-clamp-2">TR/2 1차측 전원투입/차단 (UPS 3층 2호기)</p>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-map-pin w-4 text-slate-400"></i> <span>전기실 2F</span></div>
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-microchip w-4 text-slate-400"></i> <span class="truncate text-xs">S/N: V408-02218</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm card-hover overflow-hidden panel-card" 
-                 data-name="HV/3" data-purpose="TR/3 1차측 전원투입/차단 (UPS 3층 3호기)" onclick="openModal('2FHV06')">
-                <div class="border-b border-slate-100 bg-slate-50 px-5 py-4 flex justify-between items-center">
-                    <div>
-                        <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md">2FHV06</span>
-                        <h3 class="text-lg font-bold text-slate-800 mt-1">HV/3</h3>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                        <i class="fa-solid fa-server text-blue-500"></i>
-                    </div>
-                </div>
-                <div class="px-5 py-4">
-                    <p class="text-sm font-medium text-slate-700 mb-3 h-10 line-clamp-2">TR/3 1차측 전원투입/차단 (UPS 3층 3호기)</p>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-map-pin w-4 text-slate-400"></i> <span>전기실 2F</span></div>
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-microchip w-4 text-slate-400"></i> <span class="truncate text-xs">S/N: V408-02219</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm card-hover overflow-hidden panel-card" 
-                 data-name="HV/4" data-purpose="TR/4 1차측 전원투입/차단 (UPS 3층 4호기)" onclick="openModal('2FHV07')">
-                <div class="border-b border-slate-100 bg-slate-50 px-5 py-4 flex justify-between items-center">
-                    <div>
-                        <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md">2FHV07</span>
-                        <h3 class="text-lg font-bold text-slate-800 mt-1">HV/4</h3>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                        <i class="fa-solid fa-server text-blue-500"></i>
-                    </div>
-                </div>
-                <div class="px-5 py-4">
-                    <p class="text-sm font-medium text-slate-700 mb-3 h-10 line-clamp-2">TR/4 1차측 전원투입/차단 (UPS 3층 4호기)</p>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-map-pin w-4 text-slate-400"></i> <span>전기실 2F</span></div>
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-microchip w-4 text-slate-400"></i> <span class="truncate text-xs">S/N: V408-02220</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm card-hover overflow-hidden panel-card" 
-                 data-name="HV/5" data-purpose="TR/5 1차측 전원투입/차단 (3층 공조설비용)" onclick="openModal('2FHV08')">
-                <div class="border-b border-slate-100 bg-slate-50 px-5 py-4 flex justify-between items-center">
-                    <div>
-                        <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md">2FHV08</span>
-                        <h3 class="text-lg font-bold text-slate-800 mt-1">HV/5</h3>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                        <i class="fa-solid fa-fan text-green-500"></i>
-                    </div>
-                </div>
-                <div class="px-5 py-4">
-                    <p class="text-sm font-medium text-slate-700 mb-3 h-10 line-clamp-2">TR/5 1차측 전원투입/차단 (3층 공조설비용)</p>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-map-pin w-4 text-slate-400"></i> <span>전기실 2F</span></div>
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-microchip w-4 text-slate-400"></i> <span class="truncate text-xs">S/N: V408-02221</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm card-hover overflow-hidden panel-card" 
-                 data-name="HV/6" data-purpose="TR/6 1차측 전원투입/차단 (공조설비 백업용)" onclick="openModal('2FHV09')">
-                <div class="border-b border-slate-100 bg-slate-50 px-5 py-4 flex justify-between items-center">
-                    <div>
-                        <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md">2FHV09</span>
-                        <h3 class="text-lg font-bold text-slate-800 mt-1">HV/6</h3>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                        <i class="fa-solid fa-fan text-green-500"></i>
-                    </div>
-                </div>
-                <div class="px-5 py-4">
-                    <p class="text-sm font-medium text-slate-700 mb-3 h-10 line-clamp-2">TR/6 1차측 전원투입/차단 (공조설비 백업용)</p>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-map-pin w-4 text-slate-400"></i> <span>전기실 2F</span></div>
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-microchip w-4 text-slate-400"></i> <span class="truncate text-xs">S/N: V408-02222</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm card-hover overflow-hidden panel-card" 
-                 data-name="HV/IN-4F" data-purpose="4F 전원계통 투입/차단" onclick="openModal('2FHV10')">
-                <div class="border-b border-slate-100 bg-slate-50 px-5 py-4 flex justify-between items-center">
-                    <div>
-                        <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md">2FHV10</span>
-                        <h3 class="text-lg font-bold text-slate-800 mt-1">HV/IN-4F</h3>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                        <i class="fa-solid fa-bolt text-amber-500"></i>
-                    </div>
-                </div>
-                <div class="px-5 py-4">
-                    <p class="text-sm font-medium text-slate-700 mb-3 h-10 line-clamp-2">4F 전원계통 투입/차단</p>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-map-pin w-4 text-slate-400"></i> <span>전기실 2F</span></div>
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-microchip w-4 text-slate-400"></i> <span class="truncate text-xs">S/N: V409-06741</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm card-hover overflow-hidden panel-card" 
-                 data-name="HV/7" data-purpose="TR/7 1차측 전원투입/차단 (4층 공조설비용)" onclick="openModal('2FHV11')">
-                <div class="border-b border-slate-100 bg-slate-50 px-5 py-4 flex justify-between items-center">
-                    <div>
-                        <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md">2FHV11</span>
-                        <h3 class="text-lg font-bold text-slate-800 mt-1">HV/7</h3>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                        <i class="fa-solid fa-fan text-green-500"></i>
-                    </div>
-                </div>
-                <div class="px-5 py-4">
-                    <p class="text-sm font-medium text-slate-700 mb-3 h-10 line-clamp-2">TR/7 1차측 전원투입/차단 (4층 공조설비용)</p>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-map-pin w-4 text-slate-400"></i> <span>전기실 2F</span></div>
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-microchip w-4 text-slate-400"></i> <span class="truncate text-xs">S/N: V409-06376</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm card-hover overflow-hidden panel-card" 
-                 data-name="HV/8" data-purpose="TR/8 1차측 전원투입/차단 (UPS 4층 1호기)" onclick="openModal('2FHV12')">
-                <div class="border-b border-slate-100 bg-slate-50 px-5 py-4 flex justify-between items-center">
-                    <div>
-                        <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md">2FHV12</span>
-                        <h3 class="text-lg font-bold text-slate-800 mt-1">HV/8</h3>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                        <i class="fa-solid fa-server text-blue-500"></i>
-                    </div>
-                </div>
-                <div class="px-5 py-4">
-                    <p class="text-sm font-medium text-slate-700 mb-3 h-10 line-clamp-2">TR/8 1차측 전원투입/차단 (UPS 4층 1호기)</p>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-map-pin w-4 text-slate-400"></i> <span>전기실 2F</span></div>
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-microchip w-4 text-slate-400"></i> <span class="truncate text-xs">S/N: V409-06379</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm card-hover overflow-hidden panel-card" 
-                 data-name="HV/9" data-purpose="TR/9 1차측 전원투입/차단 (UPS 4층 2호기)" onclick="openModal('2FHV13')">
-                <div class="border-b border-slate-100 bg-slate-50 px-5 py-4 flex justify-between items-center">
-                    <div>
-                        <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md">2FHV13</span>
-                        <h3 class="text-lg font-bold text-slate-800 mt-1">HV/9</h3>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                        <i class="fa-solid fa-server text-blue-500"></i>
-                    </div>
-                </div>
-                <div class="px-5 py-4">
-                    <p class="text-sm font-medium text-slate-700 mb-3 h-10 line-clamp-2">TR/9 1차측 전원투입/차단 (UPS 4층 2호기)</p>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-map-pin w-4 text-slate-400"></i> <span>전기실 2F</span></div>
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-microchip w-4 text-slate-400"></i> <span class="truncate text-xs">S/N: V409-06377</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm card-hover overflow-hidden panel-card" 
-                 data-name="HV/10" data-purpose="TR/10 1차측 전원투입/차단 (UPS 4층 3호기)" onclick="openModal('2FHV14')">
-                <div class="border-b border-slate-100 bg-slate-50 px-5 py-4 flex justify-between items-center">
-                    <div>
-                        <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md">2FHV14</span>
-                        <h3 class="text-lg font-bold text-slate-800 mt-1">HV/10</h3>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                        <i class="fa-solid fa-server text-blue-500"></i>
-                    </div>
-                </div>
-                <div class="px-5 py-4">
-                    <p class="text-sm font-medium text-slate-700 mb-3 h-10 line-clamp-2">TR/10 1차측 전원투입/차단 (UPS 4층 3호기)</p>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-map-pin w-4 text-slate-400"></i> <span>전기실 2F</span></div>
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-microchip w-4 text-slate-400"></i> <span class="truncate text-xs">S/N: V409-06380</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm card-hover overflow-hidden panel-card" 
-                 data-name="HV/11" data-purpose="TR/11 1차측 전원투입/차단 (UPS 4층 3호기)" onclick="openModal('2FHV15')">
-                <div class="border-b border-slate-100 bg-slate-50 px-5 py-4 flex justify-between items-center">
-                    <div>
-                        <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-md">2FHV15</span>
-                        <h3 class="text-lg font-bold text-slate-800 mt-1">HV/11</h3>
-                    </div>
-                    <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                        <i class="fa-solid fa-server text-blue-500"></i>
-                    </div>
-                </div>
-                <div class="px-5 py-4">
-                    <p class="text-sm font-medium text-slate-700 mb-3 h-10 line-clamp-2">TR/11 1차측 전원투입/차단 (UPS 4층 3호기)</p>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-map-pin w-4 text-slate-400"></i> <span>전기실 2F</span></div>
-                        <div class="flex items-center gap-2"><i class="fa-solid fa-microchip w-4 text-slate-400"></i> <span class="truncate text-xs">S/N: V409-06378</span></div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <!-- 상세 모달 -->
-    <div id="detailModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-slate-900 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeModal()"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            
-            <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full">
-                <div class="bg-blue-800 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
-                    <h3 class="text-lg leading-6 font-bold text-white flex items-center gap-2" id="modal-title">
-                        이력카드 번호: <span id="m_id" class="bg-blue-600 px-2 py-1 rounded text-sm tracking-wider"></span>
-                    </h3>
-                    <button type="button" class="text-blue-200 hover:text-white" onclick="closeModal()">
-                        <i class="fa-solid fa-xmark text-xl"></i>
-                    </button>
-                </div>
-                
-                <div class="px-4 py-5 sm:p-6 bg-slate-50 overflow-y-auto" style="max-height: 80vh;">
-                    
-                    <!-- 1~10번 기본 내용 -->
-                    <div class="mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                        <h4 class="text-md font-bold text-slate-800 mb-3 border-l-4 border-blue-500 pl-2">기본 내용 (1~10)</h4>
-                        <table class="w-full spec-table border-collapse">
-                            <tbody>
-                                <tr>
-                                    <th class="w-24">1. 기기번호</th>
-                                    <td id="m_no" class="font-bold text-blue-700 w-1/3"></td>
-                                    <th class="w-24">6. 제작년월</th>
-                                    <td id="m_mfg_date"></td>
-                                </tr>
-                                <tr>
-                                    <th>2. 설비분류</th>
-                                    <td id="m_type"></td>
-                                    <th>7. 설치년월</th>
-                                    <td id="m_inst_date"></td>
-                                </tr>
-                                <tr>
-                                    <th>3. 설치장소</th>
-                                    <td id="m_loc"></td>
-                                    <th>8. 사이즈</th>
-                                    <td id="m_size"></td>
-                                </tr>
-                                <tr>
-                                    <th>4. 용도</th>
-                                    <td id="m_purpose"></td>
-                                    <th>9. 중량</th>
-                                    <td id="m_weight"></td>
-                                </tr>
-                                <tr>
-                                    <th>5. 제조사</th>
-                                    <td id="m_maker"></td>
-                                    <th>10. 수량</th>
-                                    <td id="m_qty"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <!-- 동적 장비 목록 렌더링 영역 -->
-                    <div id="equipments_container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-                    
-                </div>
-                
-                <div class="bg-slate-100 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse rounded-b-xl border-t border-slate-200">
-                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm" onclick="closeModal()">
-                        확인 완료
-                    </button>
-                </div>
-            </div>
+                <table class="info-table">
+                    <tbody>
+                        <tr><th>설비분류</th><td id="p_type"></td></tr>
+                        <tr><th>설치장소</th><td id="p_loc"></td></tr>
+                        <tr><th>용도</th><td id="p_purpose" class="font-medium text-slate-800"></td></tr>
+                        <tr><th>제조사 / 수량</th><td><span id="p_maker"></span> / <span id="p_qty"></span></td></tr>
+                        <tr><th>제작 / 설치년월</th><td><span id="p_mfg"></span> / <span id="p_inst"></span></td></tr>
+                        <tr><th>외함 사양</th><td class="text-xs text-slate-500"><span id="p_size"></span> <br> <span id="p_weight"></span></td></tr>
+                    </tbody>
+                </table>
+            </section>
+            <div id="p_equipments" class="space-y-6"></div>
         </div>
     </div>
 
     <script>
-        const panelData = [{"id": "2FHV01", "basic": {"no": "HV/INT-A/B", "type": "VCB반", "loc": "전기실 2F", "purpose": "3F 전원계통 투입/차단", "maker": "승보산전", "mfg_date": "2008.4", "inst_date": "2008", "size": "W800xH2350xD2260", "weight": "약 600[kg]", "qty": "1면"}, "eq1": {"title": "진공차단기(VCB)", "qty": "2대", "specs": [{"k": "모델", "v": "HVF1142 G형"}, {"k": "정격사용전압", "v": "7.2[kV]"}, {"k": "정격전류", "v": "1,250[A]"}, {"k": "정격차단전류", "v": "25[kA]"}, {"k": "무게", "v": "110[kg]"}, {"k": "Serial No.", "v": "V408-02223"}, {"k": "제조사", "v": "현대중공업"}, {"k": "정격 동작 시퀀스", "v": "0-0.3Sec-CO-3min-CO"}, {"k": "과도회복전압(TRV)", "v": "0.24[kV/µs]"}, {"k": "동작/투입/트립전압", "v": "DC 110[V]"}, {"k": "정격주파수", "v": "50/60[Hz]"}, {"k": "충격내전압", "v": "60[kV]"}, {"k": "정격차단시간", "v": "3 cycle (0.05s)"}, {"k": "투입/차단시간", "v": "56[ms] / 32[ms]"}, {"k": "제조년도", "v": "2008"}]}}, {"id": "2FHV02", "basic": {"no": "HV/PT", "type": "GPT반", "loc": "전기실 2F", "purpose": "영상전압 검출용 계기류 전원공급", "maker": "승보산전", "mfg_date": "2008.4", "inst_date": "2008", "size": "W800xH2350x02260", "weight": "약 510[kg]", "qty": "1면"}, "eq1": {"title": "영상접지변압기(GPT)", "qty": "3대", "specs": [{"k": "모델", "v": "DPI-64NT"}, {"k": "정격전압(1/2/3차)", "v": "6600/√3 / 110/√3 / 190/3 [V]"}, {"k": "정격부담", "v": "200VA"}, {"k": "오차계급", "v": "1.0CL/3P"}, {"k": "무게", "v": "24[kg]"}, {"k": "Serial No.", "v": "V408-02223"}, {"k": "제조사", "v": "동우(DongWoo)"}, {"k": "제조년도", "v": "2008.04"}]}}, {"id": "2FHV03", "basic": {"no": "HV/IN-3F", "type": "VCB반", "loc": "전기실 2F", "purpose": "3F 전원계통 투입/차단", "maker": "승보산전", "mfg_date": "2008.4", "inst_date": "2008", "size": "W800xH2350xD2260", "weight": "약 660[kg]", "qty": "1면"}, "eq1": {"title": "진공차단기(VCB)", "qty": "1대", "specs": [{"k": "모델", "v": "HVF1142 G형"}, {"k": "정격사용전압", "v": "7.2[kV]"}, {"k": "정격전류", "v": "1,250[A]"}, {"k": "정격차단전류", "v": "25[kA]"}, {"k": "무게", "v": "110[kg]"}, {"k": "Serial No.", "v": "V408-02225"}, {"k": "제조사", "v": "현대중공업"}, {"k": "정격 동작 시퀀스", "v": "0-0.3Sec-CO-3min-CO"}, {"k": "과도회복전압(TRV)", "v": "0.24[kV/µs]"}, {"k": "동작/투입/트립전압", "v": "DC 110[V]"}, {"k": "정격주파수", "v": "50/60[Hz]"}, {"k": "충격내전압", "v": "60[kV]"}, {"k": "정격차단시간", "v": "3 cycle (0.05s)"}, {"k": "투입/차단시간", "v": "56[ms] / 32[ms]"}, {"k": "제조년도", "v": "2008"}]}, "eq2": {"title": "변류기(CT)", "qty": "3EA", "specs": [{"k": "모델", "v": "DCI-61A"}, {"k": "Class", "v": "5P20"}, {"k": "최고전압", "v": "7.2kV"}, {"k": "CT비", "v": "800/5A"}, {"k": "정격단시간전류", "v": "25kA/1Sec"}, {"k": "정격부담", "v": "15VA"}, {"k": "무게", "v": "16[kg]"}, {"k": "Serial No.", "v": "CT CH014780-82"}, {"k": "제조사", "v": "동우(Dong Woo)"}, {"k": "용도", "v": "보호계전기용"}]}, "eq3": {"title": "보호계전기(HIMAP)", "qty": "1EA", "specs": [{"k": "모델", "v": "HGMAP-SF"}, {"k": "정격", "v": "DC110V, 5A, 60Hz"}, {"k": "계전요소", "v": "50/51,50G/51G,27M,59,67GX"}, {"k": "Serial No.", "v": "SF21-01112"}, {"k": "제조사", "v": "현대중공업"}, {"k": "용도", "v": "계측, 제어, 계전보호"}]}, "eq4": {"title": "제어기기(HIMIX)", "qty": "1EA", "specs": [{"k": "모델", "v": "HIMIX"}, {"k": "Serial No.", "v": "LH0804126"}, {"k": "제조사", "v": "현대중공업"}]}}, {"id": "2FHV04", "basic": {"no": "HV/1", "type": "VCB반", "loc": "전기실 2F", "purpose": "TR/1 1차측 전원투입/차단 (UPS 3층 1호기)", "maker": "승보산전", "mfg_date": "2008.4", "inst_date": "2008", "size": "W800xH2350x02260", "weight": "약 680[kg]", "qty": "1면"}, "eq1": {"title": "진공차단기(VCB)", "qty": "1대", "specs": [{"k": "모델", "v": "HVF1141 G형"}, {"k": "정격사용전압", "v": "7.2[kV]"}, {"k": "정격전류", "v": "630[A]"}, {"k": "정격차단전류", "v": "25[kA]"}, {"k": "무게", "v": "110[kg]"}, {"k": "Serial No.", "v": "V408-02217"}, {"k": "제조사", "v": "현대중공업"}, {"k": "정격 동작 시퀀스", "v": "0-0.3Sec-CO-3min-CO"}, {"k": "과도회복전압(TRV)", "v": "0.24[kV/µs]"}, {"k": "동작/투입/트립전압", "v": "DC 110[V]"}, {"k": "정격주파수", "v": "50/60[Hz]"}, {"k": "충격내전압", "v": "60[kV]"}, {"k": "정격차단시간", "v": "3 cycle (0.05s)"}, {"k": "투입/차단시간", "v": "56[ms] / 32[ms]"}, {"k": "제조년도", "v": "2008"}]}, "eq2": {"title": "변류기(CT)", "qty": "3EA", "specs": [{"k": "모델", "v": "DCI-105A"}, {"k": "Class", "v": "5P20"}, {"k": "최고전압", "v": "7.2kV"}, {"k": "CT비", "v": "150/5A"}, {"k": "정격단시간전류", "v": "25kA/1Sec"}, {"k": "정격부담", "v": "15VA"}, {"k": "무게", "v": "24[kg]"}, {"k": "Serial No.", "v": "CT CH014789-91"}, {"k": "제조사", "v": "동우(Dong Woo)"}, {"k": "용도", "v": "보호계전기용"}]}, "eq3": {"title": "보호계전기(HIMAP)", "qty": "1EA", "specs": [{"k": "모델", "v": "HGMAP-SF"}, {"k": "정격", "v": "DC110V, 5A, 60Hz"}, {"k": "계전요소", "v": "50/51,67G"}, {"k": "Serial No.", "v": "SF21-01118"}, {"k": "제조사", "v": "현대중공업"}, {"k": "용도", "v": "계측, 제어, 계전보호"}]}, "eq4": {"title": "서지흡수기(SA)", "qty": "3EA", "specs": [{"k": "모델", "v": "PDV-65"}, {"k": "공칭방전전류", "v": "5kA, 80/20us (9kV, MCOV 7.65kV)"}, {"k": "Serial No.", "v": "2172587314"}, {"k": "제조사", "v": "OHIO BRASS"}, {"k": "용도", "v": "VCB 개폐서지 보호용"}]}}, {"id": "2FHV05", "basic": {"no": "HV/2", "type": "VCB반", "loc": "전기실 2F", "purpose": "TR/2 1차측 전원투입/차단 (UPS 3층 2호기)", "maker": "승보산전", "mfg_date": "2008.4", "inst_date": "2008", "size": "W800xH2350x02260", "weight": "약 680[kg]", "qty": "1면"}, "eq1": {"title": "진공차단기(VCB)", "qty": "1대", "specs": [{"k": "모델", "v": "HVF1141 G형"}, {"k": "정격사용전압", "v": "7.2[kV]"}, {"k": "정격전류", "v": "630[A]"}, {"k": "정격차단전류", "v": "25[kA]"}, {"k": "무게", "v": "110[kg]"}, {"k": "Serial No.", "v": "V408-02218"}, {"k": "제조사", "v": "현대중공업"}, {"k": "정격 동작 시퀀스", "v": "0-0.3Sec-CO-3min-CO"}, {"k": "과도회복전압(TRV)", "v": "0.24[kV/µs]"}, {"k": "동작/투입/트립전압", "v": "DC 110[V]"}, {"k": "정격주파수", "v": "50/60[Hz]"}, {"k": "충격내전압", "v": "60[kV]"}, {"k": "정격차단시간", "v": "3 cycle (0.05s)"}, {"k": "투입/차단시간", "v": "56[ms] / 32[ms]"}, {"k": "제조년도", "v": "2008"}]}, "eq2": {"title": "변류기(CT)", "qty": "3EA", "specs": [{"k": "모델", "v": "DCI-105A"}, {"k": "Class", "v": "5P20"}, {"k": "최고전압", "v": "7.2kV"}, {"k": "CT비", "v": "150/5A"}, {"k": "정격단시간전류", "v": "25kA/1Sec"}, {"k": "정격부담", "v": "15VA"}, {"k": "무게", "v": "24[kg]"}, {"k": "Serial No.", "v": "CT CH014792-94"}, {"k": "제조사", "v": "동우(Dong Woo)"}, {"k": "용도", "v": "보호계전기용"}]}, "eq3": {"title": "보호계전기(HIMAP)", "qty": "1EA", "specs": [{"k": "모델", "v": "HGMAP-SF"}, {"k": "정격", "v": "DC110V, 5A, 60Hz"}, {"k": "계전요소", "v": "50/51,67G"}, {"k": "Serial No.", "v": "SF21-01084"}, {"k": "제조사", "v": "현대중공업"}, {"k": "용도", "v": "계측, 제어, 계전보호"}]}, "eq4": {"title": "서지흡수기(SA)", "qty": "3EA", "specs": [{"k": "모델", "v": "PDV-65"}, {"k": "공칭방전전류", "v": "5kA, 80/20us (9kV, MCOV 7.65kV)"}, {"k": "Serial No.", "v": "2172587314"}, {"k": "제조사", "v": "OHIO BRASS"}, {"k": "용도", "v": "VCB 개폐서지 보호용"}]}}, {"id": "2FHV06", "basic": {"no": "HV/3", "type": "VCB반", "loc": "전기실 2F", "purpose": "TR/3 1차측 전원투입/차단 (UPS 3층 3호기)", "maker": "승보산전", "mfg_date": "2008.4", "inst_date": "2008", "size": "W800xH2350x02260", "weight": "약 680[kg]", "qty": "1면"}, "eq1": {"title": "진공차단기(VCB)", "qty": "1대", "specs": [{"k": "모델", "v": "HVF1141 G형"}, {"k": "정격사용전압", "v": "7.2[kV]"}, {"k": "정격전류", "v": "630[A]"}, {"k": "정격차단전류", "v": "25[kA]"}, {"k": "무게", "v": "110[kg]"}, {"k": "Serial No.", "v": "V408-02219"}, {"k": "제조사", "v": "현대중공업"}, {"k": "정격 동작 시퀀스", "v": "0-0.3Sec-CO-3min-CO"}, {"k": "과도회복전압(TRV)", "v": "0.24[kV/µs]"}, {"k": "동작/투입/트립전압", "v": "DC 110[V]"}, {"k": "정격주파수", "v": "50/60[Hz]"}, {"k": "충격내전압", "v": "60[kV]"}, {"k": "정격차단시간", "v": "3 cycle (0.05s)"}, {"k": "투입/차단시간", "v": "56[ms] / 32[ms]"}, {"k": "제조년도", "v": "2008"}]}, "eq2": {"title": "변류기(CT)", "qty": "3EA", "specs": [{"k": "모델", "v": "DCI-105A"}, {"k": "Class", "v": "5P20"}, {"k": "최고전압", "v": "7.2kV"}, {"k": "CT비", "v": "150/5A"}, {"k": "정격단시간전류", "v": "25kA/1Sec"}, {"k": "정격부담", "v": "15VA"}, {"k": "무게", "v": "24[kg]"}, {"k": "Serial No.", "v": "CT CH014795-97"}, {"k": "제조사", "v": "동우(Dong Woo)"}, {"k": "용도", "v": "보호계전기용"}]}, "eq3": {"title": "보호계전기(HIMAP)", "qty": "1EA", "specs": [{"k": "모델", "v": "HGMAP-SF"}, {"k": "정격", "v": "DC110V, 5A, 60Hz"}, {"k": "계전요소", "v": "50/51,67G"}, {"k": "Serial No.", "v": "SF21-01113"}, {"k": "제조사", "v": "현대중공업"}, {"k": "용도", "v": "계측, 제어, 계전보호"}]}, "eq4": {"title": "서지흡수기(SA)", "qty": "3EA", "specs": [{"k": "모델", "v": "PDV-65"}, {"k": "공칭방전전류", "v": "5kA, 80/20us (9kV, MCOV 7.65kV)"}, {"k": "Serial No.", "v": "2172587314"}, {"k": "제조사", "v": "OHIO BRASS"}, {"k": "용도", "v": "VCB 개폐서지 보호용"}]}}, {"id": "2FHV07", "basic": {"no": "HV/4", "type": "VCB반", "loc": "전기실 2F", "purpose": "TR/4 1차측 전원투입/차단 (UPS 3층 4호기)", "maker": "승보산전", "mfg_date": "2008.4", "inst_date": "2008", "size": "W800xH2350x02260", "weight": "약 680[kg]", "qty": "1면"}, "eq1": {"title": "진공차단기(VCB)", "qty": "1대", "specs": [{"k": "모델", "v": "HVF1141 G형"}, {"k": "정격사용전압", "v": "7.2[kV]"}, {"k": "정격전류", "v": "630[A]"}, {"k": "정격차단전류", "v": "25[kA]"}, {"k": "무게", "v": "110[kg]"}, {"k": "Serial No.", "v": "V408-02220"}, {"k": "제조사", "v": "현대중공업"}, {"k": "정격 동작 시퀀스", "v": "0-0.3Sec-CO-3min-CO"}, {"k": "과도회복전압(TRV)", "v": "0.24[kV/µs]"}, {"k": "동작/투입/트립전압", "v": "DC 110[V]"}, {"k": "정격주파수", "v": "50/60[Hz]"}, {"k": "충격내전압", "v": "60[kV]"}, {"k": "정격차단시간", "v": "3 cycle (0.05s)"}, {"k": "투입/차단시간", "v": "56[ms] / 32[ms]"}, {"k": "제조년도", "v": "2008"}]}, "eq2": {"title": "변류기(CT)", "qty": "3EA", "specs": [{"k": "모델", "v": "DCI-105A"}, {"k": "Class", "v": "5P20"}, {"k": "최고전압", "v": "7.2kV"}, {"k": "CT비", "v": "150/5A"}, {"k": "정격단시간전류", "v": "25kA/1Sec"}, {"k": "정격부담", "v": "15VA"}, {"k": "무게", "v": "24[kg]"}, {"k": "Serial No.", "v": "CT CH014795-800"}, {"k": "제조사", "v": "동우(Dong Woo)"}, {"k": "용도", "v": "보호계전기용"}]}, "eq3": {"title": "보호계전기(HIMAP)", "qty": "1EA", "specs": [{"k": "모델", "v": "HGMAP-SF"}, {"k": "정격", "v": "DC110V, 5A, 60Hz"}, {"k": "계전요소", "v": "50/51,67G"}, {"k": "Serial No.", "v": "SF21-01105"}, {"k": "제조사", "v": "현대중공업"}, {"k": "용도", "v": "계측, 제어, 계전보호"}]}, "eq4": {"title": "서지흡수기(SA)", "qty": "3EA", "specs": [{"k": "모델", "v": "PDV-65"}, {"k": "공칭방전전류", "v": "5kA, 80/20us (9kV, MCOV 7.65kV)"}, {"k": "Serial No.", "v": "2172587314"}, {"k": "제조사", "v": "OHIO BRASS"}, {"k": "용도", "v": "VCB 개폐서지 보호용"}]}}, {"id": "2FHV08", "basic": {"no": "HV/5", "type": "VCB반", "loc": "전기실 2F", "purpose": "TR/5 1차측 전원투입/차단 (3층 공조설비용)", "maker": "승보산전", "mfg_date": "2008.4", "inst_date": "2008", "size": "W800xH2350xD2260", "weight": "약 680[kg]", "qty": "1면"}, "eq1": {"title": "진공차단기(VCB)", "qty": "1대", "specs": [{"k": "모델", "v": "HVF1141 G형"}, {"k": "정격사용전압", "v": "7.2[kV]"}, {"k": "정격전류", "v": "630[A]"}, {"k": "정격차단전류", "v": "25[kA]"}, {"k": "무게", "v": "110[kg]"}, {"k": "Serial No.", "v": "V408-02221"}, {"k": "제조사", "v": "현대중공업"}, {"k": "정격 동작 시퀀스", "v": "0-0.3Sec-CO-3min-CO"}, {"k": "과도회복전압(TRV)", "v": "0.24[kV/µs]"}, {"k": "동작/투입/트립전압", "v": "DC 110[V]"}, {"k": "정격주파수", "v": "50/60[Hz]"}, {"k": "충격내전압", "v": "60[kV]"}, {"k": "정격차단시간", "v": "3 cycle (0.05s)"}, {"k": "투입/차단시간", "v": "56[ms] / 32[ms]"}, {"k": "제조년도", "v": "2008"}]}, "eq2": {"title": "변류기(CT)", "qty": "3EA", "specs": [{"k": "모델", "v": "DCI-205A"}, {"k": "Class", "v": "5P20"}, {"k": "최고전압", "v": "7.2kV"}, {"k": "CT비", "v": "200/5A"}, {"k": "정격단시간전류", "v": "25kA/1Sec"}, {"k": "정격부담", "v": "15VA"}, {"k": "무게", "v": "24[kg]"}, {"k": "Serial No.", "v": "CT CH014783-85"}, {"k": "제조사", "v": "동우(Dong Woo)"}, {"k": "용도", "v": "보호계전기용"}]}, "eq3": {"title": "보호계전기(HIMAP)", "qty": "1EA", "specs": [{"k": "모델", "v": "HGMAP-SF"}, {"k": "정격", "v": "DC110V, 5A, 60Hz"}, {"k": "계전요소", "v": "50/51,67G"}, {"k": "Serial No.", "v": "SF21-01107"}, {"k": "제조사", "v": "현대중공업"}, {"k": "용도", "v": "계측, 제어, 계전보호"}]}, "eq4": {"title": "서지흡수기(SA)", "qty": "3EA", "specs": [{"k": "모델", "v": "PDV-65"}, {"k": "공칭방전전류", "v": "5kA, 80/20us (9kV, MCOV 7.65kV)"}, {"k": "Serial No.", "v": "2172587314"}, {"k": "제조사", "v": "OHIO BRASS"}, {"k": "용도", "v": "VCB 개폐서지 보호용"}]}}, {"id": "2FHV09", "basic": {"no": "HV/6", "type": "VCB반", "loc": "전기실 2F", "purpose": "TR/6 1차측 전원투입/차단 (공조설비 백업용)", "maker": "승보산전", "mfg_date": "2008.4", "inst_date": "2008", "size": "W800xH2350x02260", "weight": "약 680[kg]", "qty": "1면"}, "eq1": {"title": "진공차단기(VCB)", "qty": "1대", "specs": [{"k": "모델", "v": "HVF1141 G형"}, {"k": "정격사용전압", "v": "7.2[kV]"}, {"k": "정격전류", "v": "630[A]"}, {"k": "정격차단전류", "v": "25[kA]"}, {"k": "무게", "v": "110[kg]"}, {"k": "Serial No.", "v": "V408-02222"}, {"k": "제조사", "v": "현대중공업"}, {"k": "정격 동작 시퀀스", "v": "0-0.3Sec-CO-3min-CO"}, {"k": "과도회복전압(TRV)", "v": "0.24[kV/µs]"}, {"k": "동작/투입/트립전압", "v": "DC 110[V]"}, {"k": "정격주파수", "v": "50/60[Hz]"}, {"k": "충격내전압", "v": "60[kV]"}, {"k": "정격차단시간", "v": "3 cycle (0.05s)"}, {"k": "투입/차단시간", "v": "56[ms] / 32[ms]"}, {"k": "제조년도", "v": "2008"}]}, "eq2": {"title": "변류기(CT)", "qty": "3EA", "specs": [{"k": "모델", "v": "DCI-205A"}, {"k": "Class", "v": "5P20"}, {"k": "최고전압", "v": "7.2kV"}, {"k": "CT비", "v": "200/5A"}, {"k": "정격단시간전류", "v": "25kA/1Sec"}, {"k": "정격부담", "v": "15VA"}, {"k": "무게", "v": "24[kg]"}, {"k": "Serial No.", "v": "CT CH014786-88"}, {"k": "제조사", "v": "동우(Dong Woo)"}, {"k": "용도", "v": "보호계전기용"}]}, "eq3": {"title": "보호계전기(HIMAP)", "qty": "1EA", "specs": [{"k": "모델", "v": "HGMAP-SF"}, {"k": "정격", "v": "DC110V, 5A, 60Hz"}, {"k": "계전요소", "v": "50/51,67G"}, {"k": "Serial No.", "v": "SF21-01116"}, {"k": "제조사", "v": "현대중공업"}, {"k": "용도", "v": "계측, 제어, 계전보호"}]}, "eq4": {"title": "서지흡수기(SA)", "qty": "3EA", "specs": [{"k": "모델", "v": "PDV-65"}, {"k": "공칭방전전류", "v": "5kA, 80/20us (9kV, MCOV 7.65kV)"}, {"k": "Serial No.", "v": "2172587314"}, {"k": "제조사", "v": "OHIO BRASS"}, {"k": "용도", "v": "VCB 개폐서지 보호용"}]}}, {"id": "2FHV10", "basic": {"no": "HV/IN-4F", "type": "VCB반", "loc": "전기실 2F", "purpose": "4F 전원계통 투입/차단", "maker": "합전테크", "mfg_date": "2009", "inst_date": "2010", "size": "W900xH2350x02260", "weight": "약 750[kg]", "qty": "1면"}, "eq1": {"title": "진공차단기(VCB)", "qty": "1대", "specs": [{"k": "모델", "v": "HVF1142 CGS444A"}, {"k": "정격사용전압", "v": "7.2[kV]"}, {"k": "정격전류", "v": "1,250[A]"}, {"k": "정격차단전류", "v": "25[kA]"}, {"k": "무게", "v": "130[kg]"}, {"k": "Serial No.", "v": "V409-06741"}, {"k": "제조사", "v": "현대중공업"}, {"k": "정격 동작 시퀀스", "v": "0-0.3s-CO-3m-CO CO-15s-CO"}, {"k": "과도회복전압(TRV)", "v": "0.24[kV/µs]"}, {"k": "동작/투입/트립전압", "v": "DC 110[V]"}, {"k": "정격주파수", "v": "50/60[Hz]"}, {"k": "충격내전압", "v": "60[kV]"}, {"k": "정격차단시간", "v": "3 cycle (0.05s)"}, {"k": "투입/차단시간", "v": "55[ms] / 32[ms]"}, {"k": "제조년도", "v": "2009"}]}, "eq2": {"title": "변류기(CT)", "qty": "3EA", "specs": [{"k": "모델", "v": "DCI-61AT"}, {"k": "Class", "v": "1P10 5G"}, {"k": "최고전압", "v": "7.2kV"}, {"k": "CT비", "v": "800/5A, 100/5A(3차)"}, {"k": "정격단시간전류", "v": "25kA/1Sec"}, {"k": "정격부담", "v": "15VA"}, {"k": "무게", "v": "24[kg]"}, {"k": "Serial No.", "v": "CT C1032634-36"}, {"k": "제조사", "v": "동우전기(Dong Woo)"}, {"k": "용도", "v": "보호계전기용, 3차권선용"}]}, "eq3": {"title": "보호계전기(HIMAP)", "qty": "1EA", "specs": [{"k": "모델", "v": "HGMAP-SF"}, {"k": "정격", "v": "DC110V, 5A, 60Hz"}, {"k": "계전요소", "v": "50/51,50/51G,27M,59"}, {"k": "Serial No.", "v": "SF21-01086"}, {"k": "제조사", "v": "현대중공업"}, {"k": "용도", "v": "계측, 제어, 계전보호"}]}, "eq4": {"title": "피뢰기(LA)", "qty": "3EA", "specs": [{"k": "모델", "v": "LA KD-7.5 (사기형/GAP형)"}, {"k": "공칭방전전류", "v": "2.5kA (7.5kV)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "경동중전기"}, {"k": "용도", "v": "VCB 개폐서지 보호용"}]}}, {"id": "2FHV11", "basic": {"no": "HV/7", "type": "VCB반", "loc": "전기실 2F", "purpose": "TR/7 1차측 전원투입/차단 (4층 공조설비용)", "maker": "합전테크", "mfg_date": "2009", "inst_date": "2010", "size": "W900xH2350x02260", "weight": "약 700[kg]", "qty": "1면"}, "eq1": {"title": "진공차단기(VCB)", "qty": "1대", "specs": [{"k": "모델", "v": "HVF1141 CGS444A"}, {"k": "정격사용전압", "v": "7.2[kV]"}, {"k": "정격전류", "v": "630[A]"}, {"k": "정격차단전류", "v": "25[kA]"}, {"k": "무게", "v": "130[kg]"}, {"k": "Serial No.", "v": "V409-06376"}, {"k": "제조사", "v": "현대중공업"}, {"k": "정격 동작 시퀀스", "v": "0-0.3s-CO-3m-CO CO-15s-CO"}, {"k": "과도회복전압(TRV)", "v": "0.24[kV/µs]"}, {"k": "동작/투입/트립전압", "v": "DC 110[V]"}, {"k": "정격주파수", "v": "50/60[Hz]"}, {"k": "충격내전압", "v": "60[kV]"}, {"k": "정격차단시간", "v": "3 cycle (0.05s)"}, {"k": "투입/차단시간", "v": "55[ms] / 32[ms]"}, {"k": "제조년도", "v": "2009"}]}, "eq2": {"title": "변류기(CT)", "qty": "3EA", "specs": [{"k": "모델", "v": "DCI-62A"}, {"k": "Class", "v": "1P10 5G"}, {"k": "최고전압", "v": "7.2kV"}, {"k": "CT비", "v": "200/5A"}, {"k": "정격단시간전류", "v": "25kA/1Sec"}, {"k": "정격부담", "v": "40VA"}, {"k": "무게", "v": "24[kg]"}, {"k": "Serial No.", "v": "CT C1032637-39"}, {"k": "제조사", "v": "동우전기(Dong Woo)"}, {"k": "용도", "v": "보호계전기용, 3차권선용"}]}, "eq3": {"title": "보호계전기(HIMAP)", "qty": "1EA", "specs": [{"k": "모델", "v": "HGMAP-SF"}, {"k": "정격", "v": "DC110V, 5A, 60Hz"}, {"k": "계전요소", "v": "50/51,50/51G"}, {"k": "Serial No.", "v": "SF21-01087"}, {"k": "제조사", "v": "현대중공업"}, {"k": "용도", "v": "계측, 제어, 계전보호"}]}, "eq4": {"title": "서지흡수기(SA)", "qty": "3EA", "specs": [{"k": "모델", "v": "KMSA-7.2"}, {"k": "공칭방전전류", "v": "5kA, 80/20us (7.2kV)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "비츠로이엔아이"}, {"k": "용도", "v": "VCB 개폐서지 보호용"}]}}, {"id": "2FHV12", "basic": {"no": "HV/8", "type": "VCB반", "loc": "전기실 2F", "purpose": "TR/8 1차측 전원투입/차단 (UPS 4층 1호기)", "maker": "합전테크", "mfg_date": "2009", "inst_date": "2010", "size": "W900xH2350x02260", "weight": "약 700[kg]", "qty": "1면"}, "eq1": {"title": "진공차단기(VCB)", "qty": "1대", "specs": [{"k": "모델", "v": "HVF1141 CGS444A"}, {"k": "정격사용전압", "v": "7.2[kV]"}, {"k": "정격전류", "v": "630[A]"}, {"k": "정격차단전류", "v": "25[kA]"}, {"k": "무게", "v": "130[kg]"}, {"k": "Serial No.", "v": "V409-06379"}, {"k": "제조사", "v": "현대중공업"}, {"k": "정격 동작 시퀀스", "v": "0-0.3s-CO-3m-CO CO-15s-CO"}, {"k": "과도회복전압(TRV)", "v": "0.24[kV/µs]"}, {"k": "동작/투입/트립전압", "v": "DC 110[V]"}, {"k": "정격주파수", "v": "50/60[Hz]"}, {"k": "충격내전압", "v": "60[kV]"}, {"k": "정격차단시간", "v": "3 cycle (0.05s)"}, {"k": "투입/차단시간", "v": "55[ms] / 32[ms]"}, {"k": "제조년도", "v": "2009"}]}, "eq2": {"title": "변류기(CT)", "qty": "3EA", "specs": [{"k": "모델", "v": "DCI-62A"}, {"k": "Class", "v": "1P10"}, {"k": "최고전압", "v": "7.2kV"}, {"k": "CT비", "v": "200/5A"}, {"k": "정격단시간전류", "v": "25kA/1Sec"}, {"k": "정격부담", "v": "40VA"}, {"k": "무게", "v": "24[kg]"}, {"k": "Serial No.", "v": "CT C1029937-39"}, {"k": "제조사", "v": "동우(Dong Woo)"}, {"k": "용도", "v": "보호계전기용"}]}, "eq3": {"title": "보호계전기(HIMAP)", "qty": "1EA", "specs": [{"k": "모델", "v": "HGMAP-SF"}, {"k": "정격", "v": "DC110V, 5A, 60Hz"}, {"k": "계전요소", "v": "50/51,50/51G"}, {"k": "Serial No.", "v": "SF21-01117"}, {"k": "제조사", "v": "현대중공업"}, {"k": "용도", "v": "계측, 제어, 계전보호"}]}, "eq4": {"title": "서지흡수기(SA)", "qty": "3EA", "specs": [{"k": "모델", "v": "KMSA-7.2"}, {"k": "공칭방전전류", "v": "5kA, 80/20us (7.2kV)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "비츠로이엔아이"}, {"k": "용도", "v": "VCB 개폐서지 보호용"}]}}, {"id": "2FHV13", "basic": {"no": "HV/9", "type": "VCB반", "loc": "전기실 2F", "purpose": "TR/9 1차측 전원투입/차단 (UPS 4층 2호기)", "maker": "합전테크", "mfg_date": "2009", "inst_date": "2010", "size": "W900xH2350xD2260", "weight": "약 700[kg]", "qty": "1면"}, "eq1": {"title": "진공차단기(VCB)", "qty": "1대", "specs": [{"k": "모델", "v": "HVF1141 CGS444A"}, {"k": "정격사용전압", "v": "7.2[kV]"}, {"k": "정격전류", "v": "630[A]"}, {"k": "정격차단전류", "v": "25[kA]"}, {"k": "무게", "v": "130[kg]"}, {"k": "Serial No.", "v": "V409-06377"}, {"k": "제조사", "v": "현대중공업"}, {"k": "정격 동작 시퀀스", "v": "0-0.3s-CO-3m-CO CO-15s-CO"}, {"k": "과도회복전압(TRV)", "v": "0.24[kV/µs]"}, {"k": "동작/투입/트립전압", "v": "DC 110[V]"}, {"k": "정격주파수", "v": "50/60[Hz]"}, {"k": "충격내전압", "v": "60[kV]"}, {"k": "정격차단시간", "v": "3 cycle (0.05s)"}, {"k": "투입/차단시간", "v": "55[ms] / 32[ms]"}, {"k": "제조년도", "v": "2009"}]}, "eq2": {"title": "변류기(CT)", "qty": "3EA", "specs": [{"k": "모델", "v": "DCI-62A"}, {"k": "Class", "v": "1P10"}, {"k": "최고전압", "v": "7.2kV"}, {"k": "CT비", "v": "200/5A"}, {"k": "정격단시간전류", "v": "25kA/1Sec"}, {"k": "정격부담", "v": "40VA"}, {"k": "무게", "v": "24[kg]"}, {"k": "Serial No.", "v": "CT C1029940-42"}, {"k": "제조사", "v": "동우(Dong Woo)"}, {"k": "용도", "v": "보호계전기용"}]}, "eq3": {"title": "보호계전기(HIMAP)", "qty": "1EA", "specs": [{"k": "모델", "v": "HGMAP-SF"}, {"k": "정격", "v": "DC110V, 5A, 60Hz"}, {"k": "계전요소", "v": "50/51,50/51G"}, {"k": "Serial No.", "v": "SF21-01085"}, {"k": "제조사", "v": "현대중공업"}, {"k": "용도", "v": "계측, 제어, 계전보호"}]}, "eq4": {"title": "서지흡수기(SA)", "qty": "3EA", "specs": [{"k": "모델", "v": "KMSA-7.2"}, {"k": "공칭방전전류", "v": "5kA, 80/20us (7.2kV)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "비츠로이엔아이"}, {"k": "용도", "v": "VCB 개폐서지 보호용"}]}}, {"id": "2FHV14", "basic": {"no": "HV/10", "type": "VCB반", "loc": "전기실 2F", "purpose": "TR/10 1차측 전원투입/차단 (UPS 4층 3호기)", "maker": "합전테크", "mfg_date": "2009", "inst_date": "2010", "size": "W900xH2350x02260", "weight": "약 700[kg]", "qty": "1면"}, "eq1": {"title": "진공차단기(VCB)", "qty": "1대", "specs": [{"k": "모델", "v": "HVF1141 CGS444A"}, {"k": "정격사용전압", "v": "7.2[kV]"}, {"k": "정격전류", "v": "630[A]"}, {"k": "정격차단전류", "v": "25[kA]"}, {"k": "무게", "v": "130[kg]"}, {"k": "Serial No.", "v": "V409-06380"}, {"k": "제조사", "v": "현대중공업"}, {"k": "정격 동작 시퀀스", "v": "0-0.3s-CO-3m-CO CO-15s-CO"}, {"k": "과도회복전압(TRV)", "v": "0.24[kV/µs]"}, {"k": "동작/투입/트립전압", "v": "DC 110[V]"}, {"k": "정격주파수", "v": "50/60[Hz]"}, {"k": "충격내전압", "v": "60[kV]"}, {"k": "정격차단시간", "v": "3 cycle (0.05s)"}, {"k": "투입/차단시간", "v": "55[ms] / 32[ms]"}, {"k": "제조년도", "v": "2009"}]}, "eq2": {"title": "변류기(CT)", "qty": "3EA", "specs": [{"k": "모델", "v": "DCI-62A"}, {"k": "Class", "v": "1P10"}, {"k": "최고전압", "v": "7.2kV"}, {"k": "CT비", "v": "200/5A"}, {"k": "정격단시간전류", "v": "25kA/1Sec"}, {"k": "정격부담", "v": "40VA"}, {"k": "무게", "v": "24[kg]"}, {"k": "Serial No.", "v": "CT C1029943-45"}, {"k": "제조사", "v": "동우(Dong Woo)"}, {"k": "용도", "v": "보호계전기용"}]}, "eq3": {"title": "보호계전기(HIMAP)", "qty": "1EA", "specs": [{"k": "모델", "v": "HGMAP-SF"}, {"k": "정격", "v": "DC110V, 5A, 60Hz"}, {"k": "계전요소", "v": "50/51,50/51G"}, {"k": "Serial No.", "v": "SF21-01120"}, {"k": "제조사", "v": "현대중공업"}, {"k": "용도", "v": "계측, 제어, 계전보호"}]}, "eq4": {"title": "서지흡수기(SA)", "qty": "3EA", "specs": [{"k": "모델", "v": "KMSA-7.2"}, {"k": "공칭방전전류", "v": "5kA, 80/20us (7.2kV)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "비츠로이엔아이"}, {"k": "용도", "v": "VCB 개폐서지 보호용"}]}}, {"id": "2FHV15", "basic": {"no": "HV/11", "type": "VCB반", "loc": "전기실 2F", "purpose": "TR/11 1차측 전원투입/차단 (UPS 4층 3호기)", "maker": "합전테크", "mfg_date": "2009", "inst_date": "2010", "size": "W900xH2350x02260", "weight": "약 700[kg]", "qty": "1면"}, "eq1": {"title": "진공차단기(VCB)", "qty": "1대", "specs": [{"k": "모델", "v": "HVF1141 CGS444A"}, {"k": "정격사용전압", "v": "7.2[kV]"}, {"k": "정격전류", "v": "630[A]"}, {"k": "정격차단전류", "v": "25[kA]"}, {"k": "무게", "v": "130[kg]"}, {"k": "Serial No.", "v": "V409-06378"}, {"k": "제조사", "v": "현대중공업"}, {"k": "정격 동작 시퀀스", "v": "0-0.3s-CO-3m-CO CO-15s-CO"}, {"k": "과도회복전압(TRV)", "v": "0.24[kV/µs]"}, {"k": "동작/투입/트립전압", "v": "DC 110[V]"}, {"k": "정격주파수", "v": "50/60[Hz]"}, {"k": "충격내전압", "v": "60[kV]"}, {"k": "정격차단시간", "v": "3 cycle (0.05s)"}, {"k": "투입/차단시간", "v": "55[ms] / 32[ms]"}, {"k": "제조년도", "v": "2009"}]}, "eq2": {"title": "변류기(CT)", "qty": "3EA", "specs": [{"k": "모델", "v": "DCI-62A"}, {"k": "Class", "v": "1P10"}, {"k": "최고전압", "v": "7.2kV"}, {"k": "CT비", "v": "200/5A"}, {"k": "정격단시간전류", "v": "25kA/1Sec"}, {"k": "정격부담", "v": "40VA"}, {"k": "무게", "v": "24[kg]"}, {"k": "Serial No.", "v": "CT C1029946-48"}, {"k": "제조사", "v": "동우(Dong Woo)"}, {"k": "용도", "v": "보호계전기용"}]}, "eq3": {"title": "보호계전기(HIMAP)", "qty": "1EA", "specs": [{"k": "모델", "v": "HGMAP-SF"}, {"k": "정격", "v": "DC110V, 5A, 60Hz"}, {"k": "계전요소", "v": "50/51,50/51G"}, {"k": "Serial No.", "v": "SF21-01115"}, {"k": "제조사", "v": "현대중공업"}, {"k": "용도", "v": "계측, 제어, 계전보호"}]}, "eq4": {"title": "서지흡수기(SA)", "qty": "3EA", "specs": [{"k": "모델", "v": "KMSA-7.2"}, {"k": "공칭방전전류", "v": "5kA, 80/20us (7.2kV)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "비츠로이엔아이"}, {"k": "용도", "v": "VCB 개폐서지 보호용"}]}}];
+        const panelData = [{"id": "2FHTR01", "category": "TR", "basic": {"no": "TR/1", "type": "변압기반", "loc": "전기실 2F", "purpose": "UPS 3층 1호기 전력용", "maker": "승보산전", "mfg_date": "2008.05", "inst_date": "2010", "size": "W2400xH2350xD2060", "weight": "약 3,430[kg]", "qty": "1면"}, "eq1": {"title": "변압기(TR)", "qty": "1대", "specs": [{"k": "모델", "v": "TCM0710"}, {"k": "용량", "v": "1,000 [kVA]"}, {"k": "1차/2차 정격전압", "v": "6,600[V] / 440-254[V]"}, {"k": "결선방식", "v": "Δ-Υ (Dyn11)"}, {"k": "Serial No.", "v": "8GM0235-001"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "변류기(CT)", "qty": "1EA", "specs": [{"k": "모델", "v": "UR-2"}, {"k": "CT비", "v": "200/5A"}, {"k": "Class", "v": "1.0CL"}, {"k": "용도", "v": "변압기 중성점 지락검출용"}, {"k": "Serial No.", "v": "AK89557"}, {"k": "제조사", "v": "경보전기"}]}, "eq3": {"title": "온도 콘트롤러", "qty": "1EA", "specs": [{"k": "모델", "v": "S-302CR"}, {"k": "권선온도계", "v": "PT-1002, R상 1EA"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "NAMIL Engineering"}]}, "eq4": {"title": "대류팬 / 배기팬", "qty": "6EA / 3EA", "specs": [{"k": "모델 (대류팬)", "v": "DC-95-50"}, {"k": "모델 (배기팬)", "v": "FP-108EXM S-1 BB"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "대진브로워 / COMMONWEALTH"}]}}, {"id": "2FHTR02", "category": "TR", "basic": {"no": "TR/2", "type": "변압기반", "loc": "전기실 2F", "purpose": "UPS 3층 2호기 전력용", "maker": "승보산전", "mfg_date": "2008.05", "inst_date": "2010", "size": "W2400xH2350xD2060", "weight": "약 3,430[kg]", "qty": "1면"}, "eq1": {"title": "변압기(TR)", "qty": "1대", "specs": [{"k": "모델", "v": "TCM0710"}, {"k": "용량", "v": "1,000 [kVA]"}, {"k": "1차/2차 정격전압", "v": "6,600[V] / 440-254[V]"}, {"k": "결선방식", "v": "Δ-Υ (Dyn11)"}, {"k": "Serial No.", "v": "8GM0235-002"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "변류기(CT)", "qty": "1EA", "specs": [{"k": "모델", "v": "UR-2"}, {"k": "CT비", "v": "200/5A"}, {"k": "Class", "v": "1.0CL"}, {"k": "용도", "v": "변압기 중성점 지락검출용"}, {"k": "Serial No.", "v": "A589057"}, {"k": "제조사", "v": "경보전기"}]}, "eq3": {"title": "온도 콘트롤러", "qty": "1EA", "specs": [{"k": "모델", "v": "S-302CR"}, {"k": "권선온도계", "v": "PT-1002, R상 1EA"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "NAMIL Engineering"}]}, "eq4": {"title": "대류팬 / 배기팬", "qty": "6EA / 3EA", "specs": [{"k": "모델 (대류팬)", "v": "DC-95-50"}, {"k": "모델 (배기팬)", "v": "FP-108EXM S-1 BB"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "대진브로워 / COMMONWEALTH"}]}}, {"id": "2FHTR03", "category": "TR", "basic": {"no": "TR/3", "type": "변압기반", "loc": "전기실 2F", "purpose": "UPS 3층 3호기 전력용", "maker": "승보산전", "mfg_date": "2008.05", "inst_date": "2010", "size": "W2400xH2350xD2060", "weight": "약 3,430[kg]", "qty": "1면"}, "eq1": {"title": "변압기(TR)", "qty": "1대", "specs": [{"k": "모델", "v": "TCM0710"}, {"k": "용량", "v": "1,000 [kVA]"}, {"k": "1차/2차 정격전압", "v": "6,600[V] / 440-254[V]"}, {"k": "결선방식", "v": "Δ-Υ (Dyn11)"}, {"k": "Serial No.", "v": "8GM0235-003"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "변류기(CT)", "qty": "1EA", "specs": [{"k": "모델", "v": "UR-2"}, {"k": "CT비", "v": "200/5A"}, {"k": "Class", "v": "1.0CL"}, {"k": "용도", "v": "변압기 중성점 지락검출용"}, {"k": "Serial No.", "v": "A589057"}, {"k": "제조사", "v": "경보전기"}]}, "eq3": {"title": "온도 콘트롤러", "qty": "1EA", "specs": [{"k": "모델", "v": "S-302CR"}, {"k": "권선온도계", "v": "PT-1002, R상 1EA"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "NAMIL Engineering"}]}, "eq4": {"title": "대류팬 / 배기팬", "qty": "6EA / 3EA", "specs": [{"k": "모델 (대류팬)", "v": "DC-95-50"}, {"k": "모델 (배기팬)", "v": "FP-108EXM S-1 BB"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "대진브로워 / COMMONWEALTH"}]}}, {"id": "2FHTR04", "category": "TR", "basic": {"no": "TR/4", "type": "변압기반", "loc": "전기실 2F", "purpose": "UPS 3층 4호기 전력용", "maker": "승보산전", "mfg_date": "2008.05", "inst_date": "2010", "size": "W2400xH2350xD2060", "weight": "약 3,430[kg]", "qty": "1면"}, "eq1": {"title": "변압기(TR)", "qty": "1대", "specs": [{"k": "모델", "v": "TCM0710"}, {"k": "용량", "v": "1,000 [kVA]"}, {"k": "1차/2차 정격전압", "v": "6,600[V] / 440-254[V]"}, {"k": "결선방식", "v": "Δ-Υ (Dyn11)"}, {"k": "Serial No.", "v": "8GM0235-004"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "변류기(CT)", "qty": "1EA", "specs": [{"k": "모델", "v": "UR-2"}, {"k": "CT비", "v": "200/5A"}, {"k": "Class", "v": "1.0CL"}, {"k": "용도", "v": "변압기 중성점 지락검출용"}, {"k": "Serial No.", "v": "A589077"}, {"k": "제조사", "v": "경보전기"}]}, "eq3": {"title": "온도 콘트롤러", "qty": "1EA", "specs": [{"k": "모델", "v": "S-302CR"}, {"k": "권선온도계", "v": "PT-1002, R상 1EA"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "NAMIL Engineering"}]}, "eq4": {"title": "대류팬 / 배기팬", "qty": "6EA / 3EA", "specs": [{"k": "모델 (대류팬)", "v": "DC-95-50"}, {"k": "모델 (배기팬)", "v": "FP-108EXM S-1 BB"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "대진브로워 / COMMONWEALTH"}]}}, {"id": "2FHTR05", "category": "TR", "basic": {"no": "TR/5", "type": "변압기반", "loc": "전기실 2F", "purpose": "3층 공조용", "maker": "승보산전", "mfg_date": "2008.05", "inst_date": "2010", "size": "W2400xH2350xD2060", "weight": "약 4,460[kg]", "qty": "1면"}, "eq1": {"title": "변압기(TR)", "qty": "1대", "specs": [{"k": "모델", "v": "TCM0712"}, {"k": "용량", "v": "1,500 [kVA]"}, {"k": "1차/2차 정격전압", "v": "6,600[V] / 440-254[V]"}, {"k": "결선방식", "v": "Δ-Υ (Dyn11)"}, {"k": "Serial No.", "v": "8GM0234-001"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "변류기(CT)", "qty": "1EA", "specs": [{"k": "모델", "v": "UR-2"}, {"k": "CT비", "v": "200/5A"}, {"k": "Class", "v": "1.0CL"}, {"k": "용도", "v": "변압기 중성점 지락검출용"}, {"k": "Serial No.", "v": "A589056"}, {"k": "제조사", "v": "경보전기"}]}, "eq3": {"title": "온도 콘트롤러", "qty": "1EA", "specs": [{"k": "모델", "v": "S-302CR"}, {"k": "권선온도계", "v": "PT-1002, R상 1EA"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "NAMIL Engineering"}]}, "eq4": {"title": "대류팬 / 배기팬", "qty": "6EA / 3EA", "specs": [{"k": "모델 (대류팬)", "v": "DC-95-50"}, {"k": "모델 (배기팬)", "v": "SJ1725HA2"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "대진브로워 / COMMONWEALTH"}]}}, {"id": "2FHTR06", "category": "TR", "basic": {"no": "TR/6", "type": "변압기반", "loc": "전기실 2F", "purpose": "공조 백업용", "maker": "승보산전", "mfg_date": "2008.05", "inst_date": "2010", "size": "W2400xH2350xD2060", "weight": "약 4,460[kg]", "qty": "1면"}, "eq1": {"title": "변압기(TR)", "qty": "1대", "specs": [{"k": "모델", "v": "TCM0712"}, {"k": "용량", "v": "1,500 [kVA]"}, {"k": "1차/2차 정격전압", "v": "6,600[V] / 440-254[V]"}, {"k": "결선방식", "v": "Δ-Υ (Dyn11)"}, {"k": "Serial No.", "v": "8GM0234-002"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "변류기(CT)", "qty": "1EA", "specs": [{"k": "모델", "v": "UR-2"}, {"k": "CT비", "v": "200/5A"}, {"k": "Class", "v": "1.0CL"}, {"k": "용도", "v": "변압기 중성점 지락검출용"}, {"k": "Serial No.", "v": "A589045"}, {"k": "제조사", "v": "경보전기"}]}, "eq3": {"title": "온도 콘트롤러", "qty": "1EA", "specs": [{"k": "모델", "v": "S-302CR"}, {"k": "권선온도계", "v": "PT-1002, R상 1EA"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "NAMIL Engineering"}]}, "eq4": {"title": "대류팬 / 배기팬", "qty": "6EA / 3EA", "specs": [{"k": "모델 (대류팬)", "v": "DC-95-50"}, {"k": "모델 (배기팬)", "v": "SJ1725HA2"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "대진브로워 / COMMONWEALTH"}]}}, {"id": "2FHTR07", "category": "TR", "basic": {"no": "TR/7", "type": "변압기반", "loc": "전기실 2F", "purpose": "4층 공조용", "maker": "합전테크", "mfg_date": "2008.05", "inst_date": "2010", "size": "W2400xH2350xD2060", "weight": "약 4,460[kg]", "qty": "1면"}, "eq1": {"title": "변압기(TR)", "qty": "1대", "specs": [{"k": "모델", "v": "TCM1082"}, {"k": "용량", "v": "2,000 [kVA]"}, {"k": "1차/2차 정격전압", "v": "6,600[V] / 440-254[V]"}, {"k": "결선방식", "v": "Δ-Υ (Dyn11)"}, {"k": "Serial No.", "v": "9GGD010-01"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "변류기(CT)", "qty": "1EA", "specs": [{"k": "모델", "v": "UR-2"}, {"k": "CT비", "v": "100/5A"}, {"k": "Class", "v": "1.0CL"}, {"k": "용도", "v": "변압기 중성점 지락검출용"}, {"k": "Serial No.", "v": "J561102"}, {"k": "제조사", "v": "경보전기"}]}, "eq3": {"title": "온도 콘트롤러", "qty": "1EA", "specs": [{"k": "모델", "v": "N-303"}, {"k": "권선온도계", "v": "PT-1002, R상 3EA"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "NAMIL Engineering"}]}, "eq4": {"title": "대류팬 / 배기팬", "qty": "6EA / 3EA", "specs": [{"k": "모델 (대류팬)", "v": "DC-95-50"}, {"k": "모델 (배기팬)", "v": "SJ1725HA2"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "대진브로워 / COMMONWEALTH"}]}}, {"id": "2FHTR08", "category": "TR", "basic": {"no": "TR/8", "type": "변압기반", "loc": "전기실 2F", "purpose": "UPS 4층 1호기 전력용", "maker": "합전테크", "mfg_date": "2009.12", "inst_date": "2010", "size": "W2400xH2350xD2060", "weight": "약 4,460[kg]", "qty": "1면"}, "eq1": {"title": "변압기(TR)", "qty": "1대", "specs": [{"k": "모델", "v": "TCM1317"}, {"k": "용량", "v": "1,500 [kVA]"}, {"k": "1차/2차 정격전압", "v": "6,600[V] / 440-254[V]"}, {"k": "결선방식", "v": "Δ-Υ (Dyn11)"}, {"k": "Serial No.", "v": "9GGC028-04"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "변류기(CT)", "qty": "1EA", "specs": [{"k": "모델", "v": "UR-2"}, {"k": "CT비", "v": "100/5A"}, {"k": "Class", "v": "1.0CL"}, {"k": "용도", "v": "변압기 중성점 지락검출용"}, {"k": "Serial No.", "v": "J561103"}, {"k": "제조사", "v": "경보전기"}]}, "eq3": {"title": "온도 콘트롤러", "qty": "1EA", "specs": [{"k": "모델", "v": "S-302CR"}, {"k": "권선온도계", "v": "PT-1002, R상 1EA"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "NAMIL Engineering"}]}, "eq4": {"title": "대류팬 / 배기팬", "qty": "6EA / 3EA", "specs": [{"k": "모델 (대류팬)", "v": "DC-95-50"}, {"k": "모델 (배기팬)", "v": "SJ1725HA2"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "대진브로워 / COMMONWEALTH"}]}}, {"id": "2FHTR09", "category": "TR", "basic": {"no": "TR/9", "type": "변압기반", "loc": "전기실 2F", "purpose": "UPS 4층 2호기 전력용", "maker": "합전테크", "mfg_date": "2009.12", "inst_date": "2010", "size": "W2400xH2350xD2060", "weight": "약 4,460[kg]", "qty": "1면"}, "eq1": {"title": "변압기(TR)", "qty": "1대", "specs": [{"k": "모델", "v": "TCM1317"}, {"k": "용량", "v": "1,500 [kVA]"}, {"k": "1차/2차 정격전압", "v": "6,600[V] / 440-254[V]"}, {"k": "결선방식", "v": "Δ-Υ (Dyn11)"}, {"k": "Serial No.", "v": "9GGC028-03"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "변류기(CT)", "qty": "1EA", "specs": [{"k": "모델", "v": "UR-2"}, {"k": "CT비", "v": "100/5A"}, {"k": "Class", "v": "1.0CL"}, {"k": "용도", "v": "변압기 중성점 지락검출용"}, {"k": "Serial No.", "v": "J561105"}, {"k": "제조사", "v": "경보전기"}]}, "eq3": {"title": "온도 콘트롤러", "qty": "1EA", "specs": [{"k": "모델", "v": "S-302CR"}, {"k": "권선온도계", "v": "PT-1002, R상 1EA"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "NAMIL Engineering"}]}, "eq4": {"title": "대류팬 / 배기팬", "qty": "6EA / 3EA", "specs": [{"k": "모델 (대류팬)", "v": "DC-95-50"}, {"k": "모델 (배기팬)", "v": "SJ1725HA2"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "대진브로워 / COMMONWEALTH"}]}}, {"id": "2FHTR10", "category": "TR", "basic": {"no": "TR/10", "type": "변압기반", "loc": "전기실 2F", "purpose": "UPS 4층 3호기 전력용", "maker": "합전테크", "mfg_date": "2009.12", "inst_date": "2010", "size": "W2400xH2350xD2060", "weight": "약 4,460[kg]", "qty": "1면"}, "eq1": {"title": "변압기(TR)", "qty": "1대", "specs": [{"k": "모델", "v": "TCM1317"}, {"k": "용량", "v": "1,500 [kVA]"}, {"k": "1차/2차 정격전압", "v": "6,600[V] / 440-254[V]"}, {"k": "결선방식", "v": "Δ-Υ (Dyn11)"}, {"k": "Serial No.", "v": "9GGC028-02"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "변류기(CT)", "qty": "1EA", "specs": [{"k": "모델", "v": "UR-2"}, {"k": "CT비", "v": "100/5A"}, {"k": "Class", "v": "1.0CL"}, {"k": "용도", "v": "변압기 중성점 지락검출용"}, {"k": "Serial No.", "v": "J561106"}, {"k": "제조사", "v": "경보전기"}]}, "eq3": {"title": "온도 콘트롤러", "qty": "1EA", "specs": [{"k": "모델", "v": "S-302CR"}, {"k": "권선온도계", "v": "PT-1002, R상 1EA"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "NAMIL Engineering"}]}, "eq4": {"title": "대류팬 / 배기팬", "qty": "6EA / 3EA", "specs": [{"k": "모델 (대류팬)", "v": "DC-95-50"}, {"k": "모델 (배기팬)", "v": "SJ1725HA2"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "대진브로워 / COMMONWEALTH"}]}}, {"id": "2FHTR11", "category": "TR", "basic": {"no": "TR/11", "type": "변압기반", "loc": "전기실 2F", "purpose": "UPS 4층 3호기 전력용", "maker": "합전테크", "mfg_date": "2009.12", "inst_date": "2010", "size": "W2400xH2350xD2060", "weight": "약 4,460[kg]", "qty": "1면"}, "eq1": {"title": "변압기(TR)", "qty": "1대", "specs": [{"k": "모델", "v": "TCM1317"}, {"k": "용량", "v": "1,500 [kVA]"}, {"k": "1차/2차 정격전압", "v": "6,600[V] / 440-254[V]"}, {"k": "결선방식", "v": "Δ-Υ (Dyn11)"}, {"k": "Serial No.", "v": "9GGC028-01"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "변류기(CT)", "qty": "1EA", "specs": [{"k": "모델", "v": "UR-2"}, {"k": "CT비", "v": "100/5A"}, {"k": "Class", "v": "1.0CL"}, {"k": "용도", "v": "변압기 중성점 지락검출용"}, {"k": "Serial No.", "v": "J561104"}, {"k": "제조사", "v": "경보전기"}]}, "eq3": {"title": "온도 콘트롤러", "qty": "1EA", "specs": [{"k": "모델", "v": "S-302CR"}, {"k": "권선온도계", "v": "PT-1002, R상 1EA"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "NAMIL Engineering"}]}, "eq4": {"title": "대류팬 / 배기팬", "qty": "6EA / 3EA", "specs": [{"k": "모델 (대류팬)", "v": "DC-95-50"}, {"k": "모델 (배기팬)", "v": "SJ1725HA2"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "대진브로워 / COMMONWEALTH"}]}}, {"id": "2FUPS31A", "category": "UPS", "basic": {"no": "UPS-31A", "type": "UPS(무정전전원장치)", "loc": "전기실 2F", "purpose": "3층 전산기계실 서버 무정전전원공급", "maker": "합전테크(UPS) / LG화학(BATT.)", "mfg_date": "2008", "inst_date": "2008.1", "size": "UPS: W2800×H2350xD970", "weight": "약 6,590[kg]", "qty": "1면"}, "eq1": {"title": "UPS(무정전전원장치)", "qty": "1SET", "specs": [{"k": "Type", "v": "UNIBLOCK UBR 750"}, {"k": "용량", "v": "690 [kVA]"}, {"k": "Input / Output", "v": "3Ph-440[V] / 3Ph-440[V]"}, {"k": "정격주파수", "v": "60[Hz]"}, {"k": "Serial No.", "v": "950 3017 021"}, {"k": "제조사", "v": "PILLER"}]}, "eq2": {"title": "배터리(LiB)", "qty": "1식", "specs": [{"k": "형식", "v": "리튬배터리(LiB)"}, {"k": "모델", "v": "M48128P6B"}, {"k": "총 충전용량", "v": "768 [AH]"}, {"k": "백업시간", "v": "20분 이상(@F.L)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "LG화학"}]}, "eq3": {"title": "배터리 퓨즈", "qty": "2Set", "specs": [{"k": "모델", "v": "FJW-1800A"}, {"k": "부속기기", "v": "트립센서 (CH141 DMS)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "BUSSMANN"}]}}, {"id": "2FUPS31B", "category": "UPS", "basic": {"no": "UPS-31B", "type": "UPS(무정전전원장치)", "loc": "전기실 2F", "purpose": "3층 전산기계실 서버 무정전전원공급", "maker": "합전테크(UPS) / LG화학(BATT.)", "mfg_date": "2008", "inst_date": "2008.1", "size": "UPS: W2800×H2350xD970", "weight": "약 6,590[kg]", "qty": "1면"}, "eq1": {"title": "UPS(무정전전원장치)", "qty": "1SET", "specs": [{"k": "Type", "v": "UNIBLOCK UBR 750"}, {"k": "용량", "v": "690 [kVA]"}, {"k": "Input / Output", "v": "3Ph-440[V] / 3Ph-440[V]"}, {"k": "정격주파수", "v": "60[Hz]"}, {"k": "Serial No.", "v": "950 3017 020"}, {"k": "제조사", "v": "PILLER"}]}, "eq2": {"title": "배터리(LiB)", "qty": "1식", "specs": [{"k": "형식", "v": "리튬배터리(LiB)"}, {"k": "모델", "v": "M48128P6B"}, {"k": "총 충전용량", "v": "768 [AH]"}, {"k": "백업시간", "v": "20분 이상(@F.L)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "LG화학"}]}, "eq3": {"title": "배터리 퓨즈", "qty": "2Set", "specs": [{"k": "모델", "v": "FJW-1800A"}, {"k": "부속기기", "v": "트립센서 (CH141 DMS)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "BUSSMANN"}]}}, {"id": "2FUPS32A", "category": "UPS", "basic": {"no": "UPS-32A", "type": "UPS(무정전전원장치)", "loc": "전기실 2F", "purpose": "3층 전산기계실 서버 무정전전원공급", "maker": "합전테크(UPS) / LG화학(BATT.)", "mfg_date": "2008", "inst_date": "2008.1", "size": "UPS: W2800×H2350xD970", "weight": "약 6,590[kg]", "qty": "1면"}, "eq1": {"title": "UPS(무정전전원장치)", "qty": "1SET", "specs": [{"k": "Type", "v": "UNIBLOCK UBR 750"}, {"k": "용량", "v": "690 [kVA]"}, {"k": "Input / Output", "v": "3Ph-440[V] / 3Ph-440[V]"}, {"k": "정격주파수", "v": "60[Hz]"}, {"k": "Serial No.", "v": "950 3014 681"}, {"k": "제조사", "v": "PILLER"}]}, "eq2": {"title": "배터리(LiB)", "qty": "1식", "specs": [{"k": "형식", "v": "리튬배터리(LiB)"}, {"k": "모델", "v": "M48128P6B"}, {"k": "총 충전용량", "v": "768 [AH]"}, {"k": "백업시간", "v": "20분 이상(@F.L)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "LG화학"}]}, "eq3": {"title": "배터리 퓨즈", "qty": "2Set", "specs": [{"k": "모델", "v": "FJW-1800A"}, {"k": "부속기기", "v": "트립센서 (CH141 DMS)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "BUSSMANN"}]}}, {"id": "2FUPS32B", "category": "UPS", "basic": {"no": "UPS-32B", "type": "UPS(무정전전원장치)", "loc": "전기실 2F", "purpose": "3층 전산기계실 서버 무정전전원공급", "maker": "합전테크(UPS) / LG화학(BATT.)", "mfg_date": "2008", "inst_date": "2008.1", "size": "UPS: W2800×H2350xD970", "weight": "약 6,590[kg]", "qty": "1면"}, "eq1": {"title": "UPS(무정전전원장치)", "qty": "1SET", "specs": [{"k": "Type", "v": "UNIBLOCK UBR 750"}, {"k": "용량", "v": "690 [kVA]"}, {"k": "Input / Output", "v": "3Ph-440[V] / 3Ph-440[V]"}, {"k": "정격주파수", "v": "60[Hz]"}, {"k": "Serial No.", "v": "950 3017 019"}, {"k": "제조사", "v": "PILLER"}]}, "eq2": {"title": "배터리(LiB)", "qty": "1식", "specs": [{"k": "형식", "v": "리튬배터리(LiB)"}, {"k": "모델", "v": "M48128P6B"}, {"k": "총 충전용량", "v": "768 [AH]"}, {"k": "백업시간", "v": "20분 이상(@F.L)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "LG화학"}]}, "eq3": {"title": "배터리 퓨즈", "qty": "2Set", "specs": [{"k": "모델", "v": "FJW-1800A"}, {"k": "부속기기", "v": "트립센서 (CH141 DMS)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "BUSSMANN"}]}}, {"id": "2FUPS41A", "category": "UPS", "basic": {"no": "UPS-41A", "type": "UPS(무정전전원장치)", "loc": "전기실 2F", "purpose": "4층 전산기계실 서버 무정전전원공급", "maker": "합전테크(UPS) / LG화학(BATT.)", "mfg_date": "2008", "inst_date": "2008.1", "size": "UPS: W4600×H2350xD1320", "weight": "약 15,000[kg]", "qty": "1면"}, "eq1": {"title": "UPS(무정전전원장치)", "qty": "1SET", "specs": [{"k": "Type", "v": "UNIBLOCK UBT 1200"}, {"k": "용량", "v": "1,200 [kVA]"}, {"k": "Input / Output", "v": "3Ph-440[V] / 3Ph-440[V]"}, {"k": "정격주파수", "v": "60[Hz]"}, {"k": "Serial No.", "v": "950 6005 435"}, {"k": "제조사", "v": "PILLER"}]}, "eq2": {"title": "배터리(LiB)", "qty": "1식", "specs": [{"k": "형식", "v": "리튬배터리(LiB)"}, {"k": "모델", "v": "M4860P2B"}, {"k": "총 충전용량", "v": "890 [AH]"}, {"k": "백업시간", "v": "20분 이상(@F.L)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "LG화학"}]}, "eq3": {"title": "배터리 퓨즈", "qty": "2Set", "specs": [{"k": "모델", "v": "FWJ-1600A"}, {"k": "부속기기", "v": "트립센서 (CH141 DMS)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "BUSSMANN"}]}}, {"id": "2FUPS41B", "category": "UPS", "basic": {"no": "UPS-41B", "type": "UPS(무정전전원장치)", "loc": "전기실 2F", "purpose": "4층 전산기계실 서버 무정전전원공급", "maker": "합전테크(UPS) / LG화학(BATT.)", "mfg_date": "2008", "inst_date": "2008.1", "size": "UPS: W4600×H2350xD1320", "weight": "약 15,000[kg]", "qty": "1면"}, "eq1": {"title": "UPS(무정전전원장치)", "qty": "1SET", "specs": [{"k": "Type", "v": "UNIBLOCK UBT 1200"}, {"k": "용량", "v": "1,200 [kVA]"}, {"k": "Input / Output", "v": "3Ph-440[V] / 3Ph-440[V]"}, {"k": "정격주파수", "v": "60[Hz]"}, {"k": "Serial No.", "v": "950 6005 431"}, {"k": "제조사", "v": "PILLER"}]}, "eq2": {"title": "배터리(LiB)", "qty": "1식", "specs": [{"k": "형식", "v": "리튬배터리(LiB)"}, {"k": "모델", "v": "EM048128P6BB"}, {"k": "총 충전용량", "v": "1,024 [AH]"}, {"k": "백업시간", "v": "20분 이상(@F.L)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "LG화학"}]}, "eq3": {"title": "배터리 퓨즈", "qty": "2Set", "specs": [{"k": "모델", "v": "FWJ-1600A"}, {"k": "부속기기", "v": "트립센서 (CH141 DMS)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "BUSSMANN"}]}}, {"id": "2FUPS42A", "category": "UPS", "basic": {"no": "UPS-42A", "type": "UPS(무정전전원장치)", "loc": "전기실 2F", "purpose": "4층 전산기계실 서버 무정전전원공급", "maker": "합전테크(UPS) / LG화학(BATT.)", "mfg_date": "2008", "inst_date": "2008.1", "size": "UPS: W4600×H2350xD1320", "weight": "약 15,000[kg]", "qty": "1면"}, "eq1": {"title": "UPS(무정전전원장치)", "qty": "1SET", "specs": [{"k": "Type", "v": "UNIBLOCK UBT 1200"}, {"k": "용량", "v": "1,200 [kVA]"}, {"k": "Input / Output", "v": "3Ph-440[V] / 3Ph-440[V]"}, {"k": "정격주파수", "v": "60[Hz]"}, {"k": "Serial No.", "v": "950 6005 430"}, {"k": "제조사", "v": "PILLER"}]}, "eq2": {"title": "배터리(LiB)", "qty": "1식", "specs": [{"k": "형식", "v": "리튬배터리(LiB)"}, {"k": "모델", "v": "M4860P2B"}, {"k": "총 충전용량", "v": "890 [AH]"}, {"k": "백업시간", "v": "20분 이상(@F.L)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "LG화학"}]}, "eq3": {"title": "배터리 퓨즈", "qty": "2Set", "specs": [{"k": "모델", "v": "FWJ-1600A"}, {"k": "부속기기", "v": "트립센서 (CH141 DMS)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "BUSSMANN"}]}}, {"id": "2FUPS42B", "category": "UPS", "basic": {"no": "UPS-42B", "type": "UPS(무정전전원장치)", "loc": "전기실 2F", "purpose": "4층 전산기계실 서버 무정전전원공급", "maker": "합전테크(UPS) / LG화학(BATT.)", "mfg_date": "2008", "inst_date": "2008.1", "size": "UPS: W4600×H2350xD1320", "weight": "약 15,000[kg]", "qty": "1면"}, "eq1": {"title": "UPS(무정전전원장치)", "qty": "1SET", "specs": [{"k": "Type", "v": "UNIBLOCK UBT 1200"}, {"k": "용량", "v": "1,200 [kVA]"}, {"k": "Input / Output", "v": "3Ph-440[V] / 3Ph-440[V]"}, {"k": "정격주파수", "v": "60[Hz]"}, {"k": "Serial No.", "v": "950 6005 432"}, {"k": "제조사", "v": "PILLER"}]}, "eq2": {"title": "배터리(LiB)", "qty": "1식", "specs": [{"k": "형식", "v": "리튬배터리(LiB)"}, {"k": "모델", "v": "EM048128P6BB"}, {"k": "총 충전용량", "v": "1,024 [AH]"}, {"k": "백업시간", "v": "20분 이상(@F.L)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "LG화학"}]}, "eq3": {"title": "배터리 퓨즈", "qty": "2Set", "specs": [{"k": "모델", "v": "FWJ-1600A"}, {"k": "부속기기", "v": "트립센서 (CH141 DMS)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "BUSSMANN"}]}}, {"id": "B3FGEN_3F", "category": "GEN", "basic": {"no": "3F-2500kW", "type": "비상발전기", "loc": "지하3층 발전기실", "purpose": "3층 비상전원공급", "maker": "KOHLER", "mfg_date": "2007", "inst_date": "2008.10", "size": "W6,635xH2,448xD1,640", "weight": "약 29,651 [kg]", "qty": "1SET"}, "eq1": {"title": "엔진(Engine)", "qty": "1SET", "specs": [{"k": "모델", "v": "20V 4000 MIDEC"}, {"k": "SPEED", "v": "1,800 [RPM]"}, {"k": "FUEL", "v": "DIESEL"}, {"k": "Serial No.", "v": "528 100 657"}, {"k": "제조사", "v": "MTU"}]}, "eq2": {"title": "발전기(Alternator)", "qty": "1SET", "specs": [{"k": "모델", "v": "2800REOZD"}, {"k": "출력", "v": "2,500 [kW]"}, {"k": "VALRAGE", "v": "440-254[V]"}, {"k": "Serial No.", "v": "2195392"}, {"k": "제조사", "v": "MARATHON"}]}, "eq3": {"title": "배터리", "qty": "8SET", "specs": [{"k": "형식", "v": "무보수밀폐형 (RP 200-12)"}, {"k": "전압/용량", "v": "12V / 200AH"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "로케트배터리(세방전지)"}]}}, {"id": "B3FGEN_4F", "category": "GEN", "basic": {"no": "4F-3300kW", "type": "비상발전기", "loc": "지하3층 발전기실", "purpose": "4층 비상전원공급", "maker": "KOHLER", "mfg_date": "2008", "inst_date": "2010.02", "size": "W6,635xH2,448xD1,640", "weight": "약 29,651 [kg]", "qty": "1SET"}, "eq1": {"title": "엔진(Engine)", "qty": "1SET", "specs": [{"k": "모델", "v": "20V 4000"}, {"k": "SPEED", "v": "1,800 [RPM]"}, {"k": "FUEL", "v": "DIESEL"}, {"k": "Serial No.", "v": "528 100 885"}, {"k": "제조사", "v": "MTU"}]}, "eq2": {"title": "발전기(Alternator)", "qty": "1SET", "specs": [{"k": "모델", "v": "3260REOZD"}, {"k": "출력", "v": "3,300 [kW]"}, {"k": "VALRAGE", "v": "440-254[V]"}, {"k": "Serial No.", "v": "2271448"}, {"k": "제조사", "v": "MARATHON"}]}, "eq3": {"title": "배터리", "qty": "8SET", "specs": [{"k": "형식", "v": "무보수밀폐형 (RP 200-12)"}, {"k": "전압/용량", "v": "12V / 200AH"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "로케트배터리(세방전지)"}]}}, {"id": "2FLV01", "category": "LV", "basic": {"no": "LV/1", "type": "ACB & ATS반", "loc": "전기실 2F", "purpose": "한전/발전 선택 & TR/1 2차 저압차단", "maker": "승보산전 / 합전테크", "mfg_date": "2008.04", "inst_date": "2008", "size": "W800xH2350xD2060 (표준)", "weight": "약 400~1000[kg]", "qty": "1면"}, "eq1": {"title": "기중차단기(ACB)", "qty": "1대", "specs": [{"k": "모델", "v": "HAT12"}, {"k": "정격전류 / 용량", "v": "1250[A]"}, {"k": "정격사용전압", "v": "690[V]"}, {"k": "Serial No.", "v": "A208-00868"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "자동절환개폐기(ATS)", "qty": "1대", "specs": [{"k": "모델", "v": "616 WN 4BD"}, {"k": "정격전압", "v": "600[V]"}, {"k": "제어전압", "v": "DC 110[V]"}, {"k": "Serial No.", "v": "80137"}, {"k": "제조사", "v": "비츠로테크 / 오성"}]}, "eq3": {"title": "기타 부속기기 (CT, HIMAP, PT)", "qty": "1식", "specs": [{"k": "보호계전기", "v": "HGMAP-SF (DC110V, 5A)"}, {"k": "계기용변압기", "v": "LL22 (440/220V)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "현대중공업 / 경보전기"}]}}, {"id": "2FLV02", "category": "LV", "basic": {"no": "LV/2", "type": "ACB & ATS반", "loc": "전기실 2F", "purpose": "한전/발전 선택 & TR/2 2차 저압차단", "maker": "승보산전 / 합전테크", "mfg_date": "2008.04", "inst_date": "2008", "size": "W800xH2350xD2060 (표준)", "weight": "약 400~1000[kg]", "qty": "1면"}, "eq1": {"title": "기중차단기(ACB)", "qty": "1대", "specs": [{"k": "모델", "v": "HAT12"}, {"k": "정격전류 / 용량", "v": "1250[A]"}, {"k": "정격사용전압", "v": "690[V]"}, {"k": "Serial No.", "v": "A208-00867"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "자동절환개폐기(ATS)", "qty": "1대", "specs": [{"k": "모델", "v": "616 WN 4BD"}, {"k": "정격전압", "v": "600[V]"}, {"k": "제어전압", "v": "DC 110[V]"}, {"k": "Serial No.", "v": "80136"}, {"k": "제조사", "v": "비츠로테크 / 오성"}]}, "eq3": {"title": "기타 부속기기 (CT, HIMAP, PT)", "qty": "1식", "specs": [{"k": "보호계전기", "v": "HGMAP-SF (DC110V, 5A)"}, {"k": "계기용변압기", "v": "LL22 (440/220V)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "현대중공업 / 경보전기"}]}}, {"id": "2FLV03", "category": "LV", "basic": {"no": "LV/3", "type": "ACB & ATS반", "loc": "전기실 2F", "purpose": "한전/발전 선택 & TR/3 2차 저압차단", "maker": "승보산전 / 합전테크", "mfg_date": "2008.04", "inst_date": "2008", "size": "W800xH2350xD2060 (표준)", "weight": "약 400~1000[kg]", "qty": "1면"}, "eq1": {"title": "기중차단기(ACB)", "qty": "1대", "specs": [{"k": "모델", "v": "HAT12"}, {"k": "정격전류 / 용량", "v": "1250[A]"}, {"k": "정격사용전압", "v": "690[V]"}, {"k": "Serial No.", "v": "A208-00866"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "자동절환개폐기(ATS)", "qty": "1대", "specs": [{"k": "모델", "v": "616 WN 4BD"}, {"k": "정격전압", "v": "600[V]"}, {"k": "제어전압", "v": "DC 110[V]"}, {"k": "Serial No.", "v": "80139"}, {"k": "제조사", "v": "비츠로테크 / 오성"}]}, "eq3": {"title": "기타 부속기기 (CT, HIMAP, PT)", "qty": "1식", "specs": [{"k": "보호계전기", "v": "HGMAP-SF (DC110V, 5A)"}, {"k": "계기용변압기", "v": "LL22 (440/220V)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "현대중공업 / 경보전기"}]}}, {"id": "2FLV04", "category": "LV", "basic": {"no": "LV/4", "type": "ACB & ATS반", "loc": "전기실 2F", "purpose": "한전/발전 선택 & TR/4 2차 저압차단", "maker": "승보산전 / 합전테크", "mfg_date": "2008.04", "inst_date": "2008", "size": "W800xH2350xD2060 (표준)", "weight": "약 400~1000[kg]", "qty": "1면"}, "eq1": {"title": "기중차단기(ACB)", "qty": "1대", "specs": [{"k": "모델", "v": "HAT12"}, {"k": "정격전류 / 용량", "v": "1250[A]"}, {"k": "정격사용전압", "v": "690[V]"}, {"k": "Serial No.", "v": "A208-00865"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "자동절환개폐기(ATS)", "qty": "1대", "specs": [{"k": "모델", "v": "616 WN 4BD"}, {"k": "정격전압", "v": "600[V]"}, {"k": "제어전압", "v": "DC 110[V]"}, {"k": "Serial No.", "v": "80135"}, {"k": "제조사", "v": "비츠로테크 / 오성"}]}, "eq3": {"title": "기타 부속기기 (CT, HIMAP, PT)", "qty": "1식", "specs": [{"k": "보호계전기", "v": "HGMAP-SF (DC110V, 5A)"}, {"k": "계기용변압기", "v": "LL22 (440/220V)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "현대중공업 / 경보전기"}]}}, {"id": "2FLV05", "category": "LV", "basic": {"no": "LV/5", "type": "ACB & ATS반", "loc": "전기실 2F", "purpose": "한전/발전 선택 & TR/5 2차 저압차단", "maker": "승보산전 / 합전테크", "mfg_date": "2008.04", "inst_date": "2008", "size": "W800xH2350xD2060 (표준)", "weight": "약 400~1000[kg]", "qty": "1면"}, "eq1": {"title": "기중차단기(ACB)", "qty": "1대", "specs": [{"k": "모델", "v": "HAT25"}, {"k": "정격전류 / 용량", "v": "2500[A]"}, {"k": "정격사용전압", "v": "690[V]"}, {"k": "Serial No.", "v": "A208-00833"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "자동절환개폐기(ATS)", "qty": "1대", "specs": [{"k": "모델", "v": "OSS-625-PCN"}, {"k": "정격전압", "v": "600[V]"}, {"k": "제어전압", "v": "DC 110[V]"}, {"k": "Serial No.", "v": "QC2436"}, {"k": "제조사", "v": "비츠로테크 / 오성"}]}, "eq3": {"title": "기타 부속기기 (CT, HIMAP, PT)", "qty": "1식", "specs": [{"k": "보호계전기", "v": "HGMAP-SF (DC110V, 5A)"}, {"k": "계기용변압기", "v": "LL22 (440/220V)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "현대중공업 / 경보전기"}]}}, {"id": "2FLV06", "category": "LV", "basic": {"no": "LV/5-1", "type": "저압반(LV) / ATS반", "loc": "전기실 2F", "purpose": "NOR/EM'CY 선택 & Feeder MCCB반", "maker": "승보산전 / 합전테크", "mfg_date": "2008.04", "inst_date": "2008", "size": "W800xH2350xD2060 (표준)", "weight": "약 400~1000[kg]", "qty": "1면"}, "eq1": {"title": "자동절환개폐기(ATS)", "qty": "1대", "specs": [{"k": "모델", "v": "OSS-625-PCN"}, {"k": "정격전압", "v": "600[V]"}, {"k": "제어전압", "v": "DC 110[V]"}, {"k": "Serial No.", "v": "QC2434"}, {"k": "제조사", "v": "비츠로테크 / 오성"}]}, "eq2": {"title": "기타 부속기기 (CT, HIMAP, PT)", "qty": "1식", "specs": [{"k": "보호계전기", "v": "HGMAP-SF (DC110V, 5A)"}, {"k": "계기용변압기", "v": "LL22 (440/220V)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "현대중공업 / 경보전기"}]}}, {"id": "2FLV10", "category": "LV", "basic": {"no": "LV/7", "type": "ACB & ATS반", "loc": "전기실 2F", "purpose": "한전/발전 선택 & TR/7 2차 저압차단", "maker": "승보산전 / 합전테크", "mfg_date": "2008.04", "inst_date": "2008", "size": "W800xH2350xD2060 (표준)", "weight": "약 400~1000[kg]", "qty": "1면"}, "eq1": {"title": "기중차단기(ACB)", "qty": "1대", "specs": [{"k": "모델", "v": "HIAN324DM5"}, {"k": "정격전류 / 용량", "v": "3200[A]"}, {"k": "정격사용전압", "v": "690[V]"}, {"k": "Serial No.", "v": "A409-04911"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "자동절환개폐기(ATS)", "qty": "1대", "specs": [{"k": "모델", "v": "OSS-632-PC"}, {"k": "정격전압", "v": "600[V]"}, {"k": "제어전압", "v": "DC 110[V]"}, {"k": "Serial No.", "v": "YK6539"}, {"k": "제조사", "v": "비츠로테크 / 오성"}]}, "eq3": {"title": "기타 부속기기 (CT, HIMAP, PT)", "qty": "1식", "specs": [{"k": "보호계전기", "v": "HGMAP-SF (DC110V, 5A)"}, {"k": "계기용변압기", "v": "LL22 (440/220V)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "현대중공업 / 경보전기"}]}}, {"id": "2FLV16", "category": "LV", "basic": {"no": "LVGEN4F/-2", "type": "ACB & ATS반", "loc": "전기실 2F", "purpose": "4F 비상발전기 전원 투입/차단", "maker": "승보산전 / 합전테크", "mfg_date": "2008.04", "inst_date": "2008", "size": "W800xH2350xD2060 (표준)", "weight": "약 400~1000[kg]", "qty": "1면"}, "eq1": {"title": "기중차단기(ACB)", "qty": "1대", "specs": [{"k": "모델", "v": "HIAN634DM5"}, {"k": "정격전류 / 용량", "v": "6300[A]"}, {"k": "정격사용전압", "v": "690[V]"}, {"k": "Serial No.", "v": "A409-04916"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "기타 부속기기 (CT, HIMAP, PT)", "qty": "1식", "specs": [{"k": "보호계전기", "v": "HGMAP-SF (DC110V, 5A)"}, {"k": "계기용변압기", "v": "LL22 (440/220V)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "현대중공업 / 경보전기"}]}}, {"id": "B3FLVGEN3F", "category": "LV", "basic": {"no": "LVGEN3F/-1", "type": "ACB & ATS반", "loc": "지하3층 발전기실", "purpose": "3F 비상발전기 조작 및 전원 투입/차단", "maker": "승보산전 / 합전테크", "mfg_date": "2008.04", "inst_date": "2008", "size": "W800xH2350xD2060 (표준)", "weight": "약 400~1000[kg]", "qty": "1면"}, "eq1": {"title": "기중차단기(ACB)", "qty": "1대", "specs": [{"k": "모델", "v": "HAT50"}, {"k": "정격전류 / 용량", "v": "5000[A]"}, {"k": "정격사용전압", "v": "690[V]"}, {"k": "Serial No.", "v": "A208-00593"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "기타 부속기기 (CT, HIMAP, PT)", "qty": "1식", "specs": [{"k": "보호계전기", "v": "HGMAP-SF (DC110V, 5A)"}, {"k": "계기용변압기", "v": "LL22 (440/220V)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "현대중공업 / 경보전기"}]}}, {"id": "B3FLVGEN4F", "category": "LV", "basic": {"no": "LV/GEN4F-1", "type": "ACB & ATS반", "loc": "지하3층 발전기실", "purpose": "4F 비상발전기 조작 및 전원 투입/차단", "maker": "승보산전 / 합전테크", "mfg_date": "2008.04", "inst_date": "2008", "size": "W800xH2350xD2060 (표준)", "weight": "약 400~1000[kg]", "qty": "1면"}, "eq1": {"title": "기중차단기(ACB)", "qty": "1대", "specs": [{"k": "모델", "v": "HIAN6340M5"}, {"k": "정격전류 / 용량", "v": "6300[A]"}, {"k": "정격사용전압", "v": "690[V]"}, {"k": "Serial No.", "v": "A409-04703"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "기타 부속기기 (CT, HIMAP, PT)", "qty": "1식", "specs": [{"k": "보호계전기", "v": "HGMAP-SF (DC110V, 5A)"}, {"k": "계기용변압기", "v": "LL22 (440/220V)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "현대중공업 / 경보전기"}]}}, {"id": "2FLV17", "category": "LV", "basic": {"no": "LV/R", "type": "ACB & ATS반", "loc": "전기실 2F", "purpose": "조작전원 및 계전기 직류전원공급", "maker": "승보산전 / 합전테크", "mfg_date": "2008.04", "inst_date": "2008", "size": "W800xH2350xD2060 (표준)", "weight": "약 400~1000[kg]", "qty": "1면"}, "eq1": {"title": "기중차단기(ACB) / 정류기", "qty": "1대", "specs": [{"k": "모델", "v": "SCR 정류기"}, {"k": "정격전류 / 용량", "v": "110VDC / 50A"}, {"k": "정격사용전압", "v": "440VAC Input"}, {"k": "Serial No.", "v": "80378"}, {"k": "제조사", "v": "HUNG JE"}]}, "eq2": {"title": "기타 부속기기 (CT, HIMAP, PT)", "qty": "1식", "specs": [{"k": "보호계전기", "v": "HGMAP-SF (DC110V, 5A)"}, {"k": "계기용변압기", "v": "LL22 (440/220V)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "현대중공업 / 경보전기"}]}}, {"id": "2FLV18", "category": "LV", "basic": {"no": "ATS", "type": "저압반(LV) / ATS반", "loc": "전기실 2F", "purpose": "2층 항온항습기 3층, 4층 전원선택", "maker": "승보산전 / 합전테크", "mfg_date": "2008.04", "inst_date": "2008", "size": "W800xH2350xD2060 (표준)", "weight": "약 400~1000[kg]", "qty": "1면"}, "eq1": {"title": "자동절환개폐기(ATS)", "qty": "1대", "specs": [{"k": "모델", "v": "OSS-62-TN"}, {"k": "정격전압", "v": "600[V]"}, {"k": "제어전압", "v": "DC 110[V]"}, {"k": "Serial No.", "v": "ZR1225"}, {"k": "제조사", "v": "비츠로테크 / 오성"}]}, "eq2": {"title": "기타 부속기기 (CT, HIMAP, PT)", "qty": "1식", "specs": [{"k": "보호계전기", "v": "HGMAP-SF (DC110V, 5A)"}, {"k": "계기용변압기", "v": "LL22 (440/220V)"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "현대중공업 / 경보전기"}]}}, {"id": "2FHV01", "category": "HV", "basic": {"no": "HV/INT-A/B", "type": "VCB반", "loc": "전기실 2F", "purpose": "3F 전원계통 투입/차단", "maker": "승보산전", "mfg_date": "2008.04", "inst_date": "2008", "size": "W800xH2350xD2260", "weight": "약 680[kg]", "qty": "1면"}, "eq1": {"title": "진공차단기(VCB)", "qty": "1대", "specs": [{"k": "모델", "v": "HVF1142 G형"}, {"k": "정격전류", "v": "1,250[A]"}, {"k": "정격사용전압", "v": "7.2[kV]"}, {"k": "정격차단전류", "v": "25[kA]"}, {"k": "Serial No.", "v": "V408-02223"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "보호계전기(HIMAP)", "qty": "1EA", "specs": [{"k": "모델", "v": "HGMAP-SF"}, {"k": "계전요소", "v": "50/51,67G"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "현대중공업"}]}}, {"id": "2FHV04", "category": "HV", "basic": {"no": "HV/1", "type": "VCB반", "loc": "전기실 2F", "purpose": "TR/1 1차측 전원투입/차단 (UPS 3층 1호기)", "maker": "승보산전", "mfg_date": "2008.04", "inst_date": "2008", "size": "W800xH2350xD2260", "weight": "약 680[kg]", "qty": "1면"}, "eq1": {"title": "진공차단기(VCB)", "qty": "1대", "specs": [{"k": "모델", "v": "HVF1141 G형"}, {"k": "정격전류", "v": "630[A]"}, {"k": "정격사용전압", "v": "7.2[kV]"}, {"k": "정격차단전류", "v": "25[kA]"}, {"k": "Serial No.", "v": "V408-02217"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "보호계전기(HIMAP)", "qty": "1EA", "specs": [{"k": "모델", "v": "HGMAP-SF"}, {"k": "계전요소", "v": "50/51,67G"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "현대중공업"}]}}, {"id": "2FHV10", "category": "HV", "basic": {"no": "HV/IN-4F", "type": "VCB반", "loc": "전기실 2F", "purpose": "4F 전원계통 투입/차단", "maker": "승보산전", "mfg_date": "2008.04", "inst_date": "2008", "size": "W800xH2350xD2260", "weight": "약 680[kg]", "qty": "1면"}, "eq1": {"title": "진공차단기(VCB)", "qty": "1대", "specs": [{"k": "모델", "v": "HVF1142 CGS444A"}, {"k": "정격전류", "v": "1,250[A]"}, {"k": "정격사용전압", "v": "7.2[kV]"}, {"k": "정격차단전류", "v": "25[kA]"}, {"k": "Serial No.", "v": "V409-06741"}, {"k": "제조사", "v": "현대중공업"}]}, "eq2": {"title": "보호계전기(HIMAP)", "qty": "1EA", "specs": [{"k": "모델", "v": "HGMAP-SF"}, {"k": "계전요소", "v": "50/51,67G"}, {"k": "Serial No.", "v": "-"}, {"k": "제조사", "v": "현대중공업"}]}}];
+        let currentCategory = 'ALL';
 
-        // 검색 필터
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            const term = e.target.value.toLowerCase();
-            const cards = document.querySelectorAll('.panel-card');
+        // 카드 렌더링
+        function renderCards() {
+            const grid = document.getElementById('panelGrid');
+            let html = '';
+            let count = 0;
+            
+            panelData.forEach(p => {
+                // 카테고리 필터링
+                if(currentCategory !== 'ALL' && p.category !== currentCategory) return;
+                
+                count++;
+                
+                // 카테고리별 아이콘 매칭
+                let icon = 'fa-server';
+                let iconColor = 'text-slate-500';
+                
+                if(p.category === 'HV' || p.category === 'LV') { icon = 'fa-bolt'; iconColor = 'text-amber-500'; }
+                if(p.category === 'TR') { icon = 'fa-bolt-lightning'; iconColor = 'text-yellow-500'; }
+                if(p.category === 'UPS') { icon = 'fa-car-battery'; iconColor = 'text-blue-500'; }
+                if(p.category === 'GEN') { icon = 'fa-power-off'; iconColor = 'text-red-500'; }
+
+                let sn = '-';
+                if(p.eq1 && p.eq1.specs) {
+                    const snSpec = p.eq1.specs.find(s => s.k === 'Serial No.' || s.k === 'ENGINE NO.');
+                    if(snSpec) sn = snSpec.v;
+                }
+
+                html += `
+                <div class="list-card bg-white rounded-lg p-5 flex flex-col filter-card" 
+                     data-name="${p.basic.no}" data-purpose="${p.basic.purpose}" data-cat="${p.category}" onclick="openPanel('${p.id}')">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-500 tracking-wider">${p.id}</span>
+                            <h3 class="text-base font-bold text-slate-800 mt-0.5">${p.basic.no}</h3>
+                        </div>
+                        <div class="w-8 h-8 rounded-md bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400">
+                            <i class="fa-solid ${icon} ${iconColor} text-sm"></i>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-4 flex-1 line-clamp-2">${p.basic.purpose}</p>
+                    <div class="flex items-center justify-between border-t border-slate-100 pt-3 mt-auto">
+                        <span class="text-xs text-slate-500"><i class="fa-solid fa-location-dot mr-1"></i>${p.basic.loc}</span>
+                        <span class="text-[11px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded">S/N: ${sn}</span>
+                    </div>
+                </div>`;
+            });
+            
+            grid.innerHTML = html;
+            document.getElementById('resultCount').innerText = `총 ${count}건 조회됨`;
+            
+            // 검색어 재적용
+            applySearch();
+        }
+
+        // 네비게이션 클릭 이벤트
+        document.querySelectorAll('.cat-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // 스타일 변경
+                document.querySelectorAll('.cat-link').forEach(l => {
+                    l.classList.remove('bg-blue-600/10', 'text-blue-400');
+                    l.classList.add('text-slate-400');
+                });
+                this.classList.remove('text-slate-400');
+                this.classList.add('bg-blue-600/10', 'text-blue-400');
+                
+                // 상태 업데이트
+                currentCategory = this.getAttribute('data-cat');
+                document.getElementById('currentCategoryTitle').innerText = this.innerText.trim();
+                
+                // 렌더링
+                renderCards();
+            });
+        });
+
+        // 검색
+        function applySearch() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.filter-card');
+            let visibleCount = 0;
             
             cards.forEach(card => {
                 const name = card.getAttribute('data-name').toLowerCase();
                 const purpose = card.getAttribute('data-purpose').toLowerCase();
+                
                 if(name.includes(term) || purpose.includes(term)) {
-                    card.style.display = 'block';
+                    card.style.display = 'flex';
+                    visibleCount++;
                 } else {
                     card.style.display = 'none';
                 }
             });
-        });
+            
+            document.getElementById('resultCount').innerText = `총 ${visibleCount}건 조회됨`;
+        }
+        
+        document.getElementById('searchInput').addEventListener('input', applySearch);
 
-        // 모달 열기
-        function openModal(id) {
+        // 패널(Slide-over) 열기
+        window.openPanel = function(id) {
             const data = panelData.find(p => p.id === id);
             if(!data) return;
             
-            // 1. 기본 내용(1~10) 채우기
-            const basicKeys = ['no', 'type', 'loc', 'purpose', 'maker', 'mfg_date', 'inst_date', 'size', 'weight', 'qty'];
-            basicKeys.forEach(k => {
-                const el = document.getElementById('m_' + k);
-                if(el) el.innerText = data.basic[k] || '-';
-            });
-            document.getElementById('m_id').innerText = data.id;
+            document.getElementById('p_id').innerText = data.id;
+            document.getElementById('p_title').innerText = data.basic.no;
+            document.getElementById('p_type').innerText = data.basic.type;
+            document.getElementById('p_loc').innerText = data.basic.loc;
+            document.getElementById('p_purpose').innerText = data.basic.purpose;
+            document.getElementById('p_maker').innerText = data.basic.maker;
+            document.getElementById('p_qty').innerText = data.basic.qty;
+            document.getElementById('p_mfg').innerText = data.basic.mfg_date;
+            document.getElementById('p_inst').innerText = data.basic.inst_date;
+            document.getElementById('p_size').innerText = data.basic.size;
+            document.getElementById('p_weight').innerText = data.basic.weight;
 
-            // 2. 주요기기 동적 렌더링 (에러방지 최적화)
-            const eqContainer = document.getElementById('equipments_container');
-            eqContainer.innerHTML = ''; // 기존 내용 초기화
+            const eqContainer = document.getElementById('p_equipments');
+            let eqHtml = '';
+            const eqList = [data.eq1, data.eq2, data.eq3, data.eq4].filter(Boolean);
+            const icons = ['fa-plug', 'fa-circle-notch', 'fa-microchip', 'fa-shield-halved'];
 
-            const eqList = [data.eq1, data.eq2, data.eq3, data.eq4].filter(Boolean); // 존재하는 기기만 필터링
-            const borderColors = ['border-amber-500', 'border-green-500', 'border-blue-500', 'border-purple-500'];
-
-            eqList.forEach((eq, index) => {
-                const num = index + 1;
-                const borderColor = borderColors[index % 4];
-
+            eqList.forEach((eq, idx) => {
                 let rowsHtml = '';
-                eq.specs.forEach(spec => {
-                    let valClass = '';
-                    if(spec.k === 'Serial No.') {
-                        valClass = 'font-mono font-bold text-red-600 bg-red-50 tracking-wide';
-                    } else if(spec.k === '모델') {
-                        valClass = 'font-mono font-bold text-blue-700 bg-blue-50';
-                    } else if(spec.k === '계전요소') {
-                        valClass = 'font-bold text-slate-800 text-xs tracking-tight';
-                    }
+                eq.specs.forEach(s => {
+                    let vClass = '';
+                    if(s.k === 'Serial No.' || s.k === 'ENGINE NO.') vClass = 'font-mono font-medium text-red-600 bg-red-50 px-1 py-0.5 rounded tracking-wide';
+                    if(s.k === '모델' || s.k === 'Type') vClass = 'font-semibold text-blue-700';
                     
-                    rowsHtml += `
-                    <tr>
-                        <th class="w-1/3">${spec.k}</th>
-                        <td class="${valClass}">${spec.v}</td>
-                    </tr>`;
+                    rowsHtml += `<tr><th>${s.k}</th><td><span class="${vClass}">${s.v}</span></td></tr>`;
                 });
 
-                const cardHtml = `
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                    <h4 class="text-md font-bold text-slate-800 mb-3 border-l-4 ${borderColor} pl-2">주요기기 및 사양 (NO. ${num})</h4>
-                    <div class="mb-2 flex items-center justify-between px-2 text-sm">
-                        <div><span class="font-bold text-slate-700">${eq.title}</span></div>
-                        <div class="text-slate-500"><span class="bg-slate-100 px-2 py-1 rounded font-bold">${eq.qty}</span></div>
+                eqHtml += `
+                <section class="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm">
+                    <div class="bg-slate-50/50 px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fa-solid ${icons[idx % 4]} text-slate-400 w-5 text-center mr-2"></i>
+                            <h4 class="font-bold text-slate-700 text-sm">NO. ${idx+1} - ${eq.title}</h4>
+                        </div>
+                        <span class="text-xs font-bold text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded-full">${eq.qty}</span>
                     </div>
-                    <table class="w-full spec-table border-collapse">
+                    <table class="info-table">
                         <tbody>${rowsHtml}</tbody>
                     </table>
-                </div>`;
-                
-                eqContainer.innerHTML += cardHtml;
+                </section>`;
             });
+            
+            eqContainer.innerHTML = eqHtml;
 
-            document.getElementById('detailModal').classList.remove('hidden');
-        }
+            const backdrop = document.getElementById('slideOverBackdrop');
+            const panel = document.getElementById('slideOverPanel');
+            backdrop.classList.remove('pointer-events-none');
+            backdrop.classList.add('opacity-100');
+            panel.classList.remove('translate-x-full');
+        };
 
-        // 모달 닫기
-        function closeModal() {
-            document.getElementById('detailModal').classList.add('hidden');
-        }
+        window.closePanel = function() {
+            const backdrop = document.getElementById('slideOverBackdrop');
+            const panel = document.getElementById('slideOverPanel');
+            panel.classList.add('translate-x-full');
+            backdrop.classList.remove('opacity-100');
+            setTimeout(() => { backdrop.classList.add('pointer-events-none'); }, 300);
+        };
+
+        renderCards();
     </script>
 </body>
 </html>
